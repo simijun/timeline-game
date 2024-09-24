@@ -1,0 +1,30 @@
+services:
+  timeline-game:
+    container_name: timeline-game
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=development
+    volumes:
+      - .:/var/app:cached
+      - timeline-game-node-modules:/var/app/node_modules
+    working_dir: /var/app
+    ports:
+      - 3000:3000
+    tty: true
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true # Hot Reload を有効化
+      - APP_ENV=local
+    networks:
+      - timeline-game-net
+    command: npm run dev
+
+volumes:
+  # Volume Trick用の匿名ボリューム
+  # node_modulesをホストと切り離すために使用する
+  timeline-game-node-modules:
+
+networks:
+  timeline-game-net:
