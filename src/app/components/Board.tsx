@@ -21,7 +21,8 @@ export const Board = (props: BoardProps) => {
 
     // ドロップ先にカードを移動する
     updatedTableCards.splice(hoverIndex, 0, draggedCard);
-    updatedPlayerCards[playerIndex].splice(dragIndex, 1); // 手札から削除
+    // 手札から削除
+    updatedPlayerCards[playerIndex].splice(dragIndex, 1);
 
     props.setTableCards(updatedTableCards);
     props.setPlayerCards(updatedPlayerCards);
@@ -35,7 +36,7 @@ export const Board = (props: BoardProps) => {
           key={index}
           index={index}
           card={card}
-          moveCard={moveCard}
+          moveCardToTable={moveCardToTable}
           isTableCard={true}
           playerIndex={-1} // テーブルカードの場合、適当な値を渡す
         />

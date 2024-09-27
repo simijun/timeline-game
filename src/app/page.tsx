@@ -9,6 +9,7 @@ import { DistributeButton } from "@/app/components/DistributeButton";
 import { Board } from "@/app/components/Board";
 import { PlayerHand } from "@/app/components/PlayerHand";
 import { CardProps } from "@/app/types/Card";
+import { PlayerCountPicker } from "./components/PlayerCountPicker";
 
 // ----------------------------------------------------------------------------------------------------
 // Reactコンポーネント
@@ -21,11 +22,6 @@ const Home = () => {
   const [cards, setCards] = useState<CardProps[]>([]);
   const [playerCards, setPlayerCards] = useState<CardProps[][]>([]);
   const [tableCards, setTableCards] = useState<CardProps[]>([]);
-
-  const getRandomCards = (cards: CardProps[], count: number) => {
-    const shuffled = [...cards].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-  };
 
   // Supabaseからカード情報を取得
   const fetchCards = async () => {
@@ -41,6 +37,12 @@ const Home = () => {
     }
   };
 
+  // supabaseの全レコードからランダムに50個抽出
+  const getRandomCards = (cards: CardProps[], count: number) => {
+    const shuffled = [...cards].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  };
+
   // プレイヤーと場（Board）へのカード配布処理
   const onDistribute = (playerCards: CardProps[][], tableCard: CardProps) => {
     setPlayerCards(playerCards);
@@ -52,25 +54,26 @@ const Home = () => {
   }, []);
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div
-        css={css`
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 20px;
-        `}
-      >
-        <DistributeButton cards={cards} onDistribute={onDistribute} />
+    <div
+      css={css`
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      `}
+    >
+      <PlayerCountPicker />
+      <DistributeButton cards={cards} onDistribute={onDistribute} />
+      <DndProvider backend={HTML5Backend}>
         <Board
           tableCards={tableCards}
           playerCards={playerCards}
           setTableCards={setTableCards}
           setPlayerCards={setPlayerCards}
         />
-      </div>
-      <PlayerHand playerCards={playerCards} />
-    </DndProvider>
+        <PlayerHand playerCards={playerCards} />
+      </DndProvider>
+    </div>
   );
 };
 

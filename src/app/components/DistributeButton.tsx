@@ -10,7 +10,7 @@ import { DistributeCardsProps } from "@/app/types/distributeBUtton";
  * カード配布ボタン
  */
 export const DistributeButton = (props: DistributeCardsProps) => {
-  const [playerCount, setPlayerCount] = useState(2);
+  const [playerCount] = useState(2);
 
   const distributeCards = () => {
     // 元のカードをシャッフル
@@ -41,23 +41,5 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     }
   };
 
-  return (
-    <>
-      <div>
-        <label htmlFor="playerCount">参加人数：</label>
-        <select
-          id="playerCount"
-          value={playerCount}
-          onChange={(e) => setPlayerCount(Number(e.target.value))}
-        >
-          {[2, 3, 4, 5, 6].map((num) => (
-            <option key={num} value={num}>
-              {num}
-            </option>
-          ))}
-        </select>
-      </div>
-      <button onClick={distributeCards}>カードを配布</button>
-    </>
-  );
+  return <button onClick={distributeCards}>カードを配布</button>;
 };
