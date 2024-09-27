@@ -7,7 +7,7 @@ import { DistributeCardsProps } from "@/app/types/distributeBUtton";
 // ----------------------------------------------------------------------------------------------------
 
 /**
- * カード配布ボタンコンポーネント
+ * カード配布ボタン
  */
 export const DistributeButton = (props: DistributeCardsProps) => {
   const [playerCount, setPlayerCount] = useState(2);
@@ -16,7 +16,7 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     // 元のカードをシャッフル
     const shuffledCards = [...props.cards].sort(() => 0.5 - Math.random());
 
-    // プレイヤーごとの手札を管理するための二次元配列を作成
+    // プレイヤーごとの手札を管理するための二次元配列を用意
     const playerCards: CardProps[][] = Array.from(
       { length: playerCount },
       () => []

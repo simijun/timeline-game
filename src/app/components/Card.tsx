@@ -1,21 +1,29 @@
+import { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { css } from "@emotion/react";
 import { DraggableCardProps } from "@/app/types/DraggableCard";
-import { useRef } from "react";
 
+// ----------------------------------------------------------------------------------------------------
+// Reactコンポーネント
+// ----------------------------------------------------------------------------------------------------
+
+/**
+ * カードコンポーネント
+ */
 export const Card = (props: DraggableCardProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
+  // プレイヤーの手札から場にカードを移動する
   const [, drop] = useDrop({
     accept: "card",
     drop: (item: { index: number; playerIndex: number }) => {
       if (props.isTableCard) {
-        props.moveCard(item.index, props.index, item.playerIndex); // playerIndexを渡す
+        props.moveCardToTable(item.index, props.index, item.playerIndex);
       }
     },
     hover: (item: { index: number; playerIndex: number }) => {
       if (item.index !== props.index) {
-        props.moveCard(item.index, props.index, item.playerIndex); // playerIndexを渡す
+        props.moveCardToTable(item.index, props.index, item.playerIndex);
         item.index = props.index;
       }
     },
@@ -23,7 +31,7 @@ export const Card = (props: DraggableCardProps) => {
 
   const [{ isDragging }, drag] = useDrag({
     type: "card",
-    item: { index: props.index, playerIndex: props.playerIndex }, // playerIndexを追加
+    item: { index: props.index, playerIndex: props.playerIndex },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -53,7 +61,7 @@ export const Card = (props: DraggableCardProps) => {
         }
       `}
     >
-      {props.card ? ( // props.cardが存在する場合のみ表示
+      {props.card ? (
         <>
           <img
             src={props.card.image}
@@ -68,7 +76,7 @@ export const Card = (props: DraggableCardProps) => {
           <h3>{props.card.event}</h3>
         </>
       ) : (
-        <p>カード情報がありません</p> // カードがない場合のフォールバック
+        <p>カード情報がありません</p>
       )}
     </div>
   );

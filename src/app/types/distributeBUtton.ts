@@ -1,4 +1,4 @@
-import { CardProps } from "./Card";
+import { CardProps } from "@/app/types/Card";
 
 /**
  * - cards：複数のカード型情報の配列
