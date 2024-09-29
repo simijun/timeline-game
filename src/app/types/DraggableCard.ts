@@ -1,4 +1,4 @@
-import { CardProps } from "./Card";
+import { CardProps } from "@/app/types/Card";
 
 /**
  * - card：カードの型情報
@@ -6,9 +6,9 @@ import { CardProps } from "./Card";
  * - isTableCard：場のカードかどうかのフラグ
  * - playerIndex：プレイヤーのインデックス（テーブルカードの場合は使用しないためオプション）
  */
-export interface DraggableCardProps {
+export type DraggableCardProps = {
   index: number;
   card: CardProps;
   isTableCard: boolean;
   playerIndex?: number;
-}
+};

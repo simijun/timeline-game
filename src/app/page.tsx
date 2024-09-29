@@ -9,7 +9,7 @@ import { DistributeButton } from "@/app/components/DistributeButton";
 import { Board } from "@/app/components/Board";
 import { PlayerHand } from "@/app/components/PlayerHand";
 import { CardProps } from "@/app/types/Card";
-import { PlayerCountPicker } from "./components/PlayerCountPicker";
+import { PlayerCountPicker } from "@/app/components/PlayerCountPicker";
 
 // ----------------------------------------------------------------------------------------------------
 // Reactコンポーネント
