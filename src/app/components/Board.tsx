@@ -1,4 +1,6 @@
+import { useRef } from "react";
 import { css } from "@emotion/react";
+import { useDrop } from "react-dnd";
 import { Card } from "@/app/components/Card";
 import { BoardProps } from "@/app/types/Board";
 
@@ -10,79 +12,59 @@ import { BoardProps } from "@/app/types/Board";
  * 場（Board）に出たカード
  */
 export const Board = (props: BoardProps) => {
-  const moveCardToTable = (
-    dragIndex: number,
-    hoverIndex: number,
-    playerIndex: number
-  ) => {
-    const updatedTableCards = [...props.tableCards];
-    const updatedPlayerCards = [...props.playerCards];
-    const draggedCard = updatedPlayerCards[playerIndex][dragIndex];
+  const dropRef = useRef<HTMLDivElement>(null);
 
-    // ドロップ先にカードを移動する
-    updatedTableCards.splice(hoverIndex, 0, draggedCard);
-    // 手札から削除
-    updatedPlayerCards[playerIndex].splice(dragIndex, 1);
+  const [, drop] = useDrop({
+    accept: "CARD",
+    drop: (item: { id: number; isTableCard: boolean }) => {
+      // 場にカードを出すのは、手札からのカードだけ
+      if (!item.isTableCard) {
+        const cardToMove = props.playerCards
+          .flat()
+          .find((card) => card.id === item.id);
+        if (cardToMove) {
+          // プレイヤーの手札からカードを削除
+          const updatedPlayerCards = props.playerCards.map((hand) =>
+            hand.filter((card) => card.id !== item.id)
+          );
+          props.setPlayerCards(updatedPlayerCards);
 
-    props.setTableCards(updatedTableCards);
-    props.setPlayerCards(updatedPlayerCards);
-  };
+          // カードを場に追加
+          const newTableCards = [...props.tableCards, cardToMove];
+          props.setTableCards(newTableCards);
+        }
+      }
+    },
+  });
+
+  // drop関数を呼び出してrefを接続
+  drop(dropRef);
 
   return (
-    <div>
+    <div
+      ref={dropRef}
+      // 後々横スクロール可能にする
+      css={css``}
+    >
       <h2>場に出たカード</h2>
-      {props.tableCards.map((card, index) => (
-        <Card
-          key={index}
-          index={index}
-          card={card}
-          moveCardToTable={moveCardToTable}
-          isTableCard={true}
-          playerIndex={-1} // テーブルカードの場合、適当な値を渡す
-        />
-      ))}
-
-      {/* プレイヤーごとの手札を表示 */}
-      {props.playerCards.length > 0 && (
-        <div
-          css={css`
-            display: flex;
-            justify-content: center;
-            flex-direction: row;
-            width: 100%;
-          `}
-        >
-          {props.playerCards.map((playerHand, playerIndex) => (
-            <div key={playerIndex}>
-              <h2>プレイヤー {playerIndex + 1}</h2>
-              <div
-                css={css`
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                `}
-              >
-                {playerHand.map((card, cardIndex) => (
-                  <div
-                    key={card.id}
-                    css={css`
-                      margin-bottom: 10px;
-                    `}
-                  >
-                    <Card
-                      index={cardIndex}
-                      playerIndex={playerIndex}
-                      card={card}
-                      moveCardToTable={moveCardToTable}
-                      isTableCard={false}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <div
+        css={css`
+          display: flex;
+          justify-content: flex-start;
+          flex-direction: row;
+          margin-bottom: 20px; /* 場と手札の間のスペース */
+        `}
+      >
+        {props.tableCards.map((card, index) => (
+          <Card
+            key={card.id}
+            index={index}
+            card={card}
+            isTableCard={true}
+            playerIndex={-1}
+          />
+        ))}
+      </div>
     </div>
   );
 };

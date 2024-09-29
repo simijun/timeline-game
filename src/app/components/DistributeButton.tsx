@@ -43,3 +43,5 @@ export const DistributeButton = (props: DistributeCardsProps) => {
 
   return <button onClick={distributeCards}>カードを配布</button>;
 };
+
+export default DistributeButton;

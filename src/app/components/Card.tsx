@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { useDrag, useDrop } from "react-dnd";
+import { useDrag } from "react-dnd";
 import { css } from "@emotion/react";
 import { DraggableCardProps } from "@/app/types/DraggableCard";
 
@@ -13,33 +13,16 @@ import { DraggableCardProps } from "@/app/types/DraggableCard";
 export const Card = (props: DraggableCardProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  // プレイヤーの手札から場にカードを移動する
-  const [, drop] = useDrop({
-    accept: "card",
-    drop: (item: { index: number; playerIndex: number }) => {
-      if (props.isTableCard) {
-        props.moveCardToTable(item.index, props.index, item.playerIndex);
-      }
-    },
-    hover: (item: { index: number; playerIndex: number }) => {
-      if (item.index !== props.index) {
-        props.moveCardToTable(item.index, props.index, item.playerIndex);
-        item.index = props.index;
-      }
-    },
-  });
-
   const [{ isDragging }, drag] = useDrag({
-    type: "card",
-    item: { index: props.index, playerIndex: props.playerIndex },
+    type: "CARD",
+    item: { id: props.card.id, isTableCard: props.isTableCard },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
 
-  const opacity = isDragging ? 0.5 : 1;
-
-  drag(drop(ref));
+  // drag関数をrefに接続
+  drag(ref);
 
   return (
     <div
@@ -55,7 +38,7 @@ export const Card = (props: DraggableCardProps) => {
         height: 140px;
         text-align: center;
         transition: transform 0.3s ease;
-        opacity: ${opacity};
+        opacity: ${isDragging ? 0.5 : 1};
         &:hover {
           transform: scale(1.05);
         }
@@ -81,3 +64,5 @@ export const Card = (props: DraggableCardProps) => {
     </div>
   );
 };
+
+export default Card;

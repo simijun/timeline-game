@@ -10,8 +10,6 @@ import { PlayerHandProps } from "@/app/types/PlayerHand";
  * プレイヤーの手札
  */
 export const PlayerHand = (props: PlayerHandProps) => {
-  // 場（Board）の中でカードの位置を変更する
-
   return (
     <>
       {props.playerCards.length > 0 && (
@@ -44,7 +42,6 @@ export const PlayerHand = (props: PlayerHandProps) => {
                       index={cardIndex}
                       playerIndex={playerIndex}
                       card={card}
-                      moveCard={moveCard}
                       isTableCard={false}
                     />
                   </div>
@@ -57,3 +54,5 @@ export const PlayerHand = (props: PlayerHandProps) => {
     </>
   );
 };
+
+export default PlayerHand;
