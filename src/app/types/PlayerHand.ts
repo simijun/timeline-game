@@ -1,7 +1,8 @@
 import { CardProps } from "@/app/types/Card";
 
 /**
- * - playerCards：プレイヤー手札の型情報
+ * プレイヤー手札情報の型
+ * - playerCards：プレイヤー手札
  */
 export type PlayerHandProps = {
   playerCards: CardProps[][];

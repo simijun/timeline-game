@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { PlayerCountPickerProps } from "@/app/types/PlayerCountPicker";
 
 // ----------------------------------------------------------------------------------------------------
 // Reactコンポーネント
@@ -7,16 +7,14 @@ import { useState } from "react";
 /**
  * 参加人数選択プルダウン
  */
-export const PlayerCountPicker = () => {
-  const [playerCount, setPlayerCount] = useState(2);
-
+export const PlayerCountPicker = (props: PlayerCountPickerProps) => {
   return (
     <div>
       <label htmlFor="playerCount">参加人数：</label>
       <select
         id="playerCount"
-        value={playerCount}
-        onChange={(e) => setPlayerCount(Number(e.target.value))}
+        value={props.playerCount}
+        onChange={(e) => props.setPlayerCount(Number(e.target.value))}
       >
         {[2, 3, 4, 5, 6].map((num) => (
           <option key={num} value={num}>

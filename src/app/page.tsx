@@ -22,6 +22,7 @@ const Home = () => {
   const [cards, setCards] = useState<CardProps[]>([]);
   const [playerCards, setPlayerCards] = useState<CardProps[][]>([]);
   const [tableCards, setTableCards] = useState<CardProps[]>([]);
+  const [playerCount, setPlayerCount] = useState(2);
 
   // Supabaseからカード情報を取得
   const fetchCards = async () => {
@@ -62,8 +63,15 @@ const Home = () => {
         padding: 20px;
       `}
     >
-      <PlayerCountPicker />
-      <DistributeButton cards={cards} onDistribute={onDistribute} />
+      <PlayerCountPicker
+        playerCount={playerCount}
+        setPlayerCount={setPlayerCount}
+      />
+      <DistributeButton
+        cards={cards}
+        playerCount={playerCount}
+        onDistribute={onDistribute}
+      />
       <DndProvider backend={HTML5Backend}>
         <Board
           tableCards={tableCards}

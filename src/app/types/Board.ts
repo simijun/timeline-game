@@ -1,7 +1,7 @@
 import { CardProps } from "@/app/types/Card";
 
 /**
- * カード情報の型
+ * ボード情報の型
  * - tableCards: 場に出たカード
  * - playerCards: プレイヤーのカードの配列
  * - setTableCards: 場に出たカードの更新関数

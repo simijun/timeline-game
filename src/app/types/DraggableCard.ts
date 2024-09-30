@@ -1,6 +1,7 @@
 import { CardProps } from "@/app/types/Card";
 
 /**
+ * ドラッグ可能カード情報の型
  * - card：カードの型情報
  * - index：カードの並び順
  * - isTableCard：場のカードかどうかのフラグ
