@@ -1,5 +1,5 @@
 import { CardProps } from "@/app/types/Card";
-import { DistributeCardsProps } from "@/app/types/distributeBUtton";
+import { DistributeCardsProps } from "@/app/types/DistributeButton";
 
 // ----------------------------------------------------------------------------------------------------
 // Reactコンポーネント
@@ -35,6 +35,9 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     // 配布後の手札と場のカードを更新するためのコールバックを呼び出す
     if (tableCard) {
       props.onDistribute(playerCards, tableCard);
+
+      // 残りの山札を更新
+      props.setCards(shuffledCards);
     }
   };
 

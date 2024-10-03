@@ -10,18 +10,21 @@ import { DraggableCardProps } from "@/app/types/DraggableCard";
 /**
  * カードコンポーネント
  */
-export const Card = (props: DraggableCardProps) => {
+export const Card = (props: DraggableCardProps & { showYear: boolean }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ isDragging }, drag] = useDrag({
     type: "CARD",
-    item: { id: props.card.id, isTableCard: props.isTableCard },
+    item: {
+      id: props.card.id,
+      isTableCard: props.isTableCard,
+      playerIndex: props.playerIndex,
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
 
-  // drag関数をrefに接続
   drag(ref);
 
   return (
@@ -57,6 +60,18 @@ export const Card = (props: DraggableCardProps) => {
             `}
           />
           <h3>{props.card.event}</h3>
+          {/* 年代を赤文字で表示 */}
+          {props.showYear && (
+            <p
+              css={css`
+                color: red;
+                font-size: 14px;
+                font-weight: bold;
+              `}
+            >
+              {props.card.year}
+            </p>
+          )}
         </>
       ) : (
         <p>カード情報がありません</p>
