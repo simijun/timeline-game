@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { css } from "@emotion/react";
 import { useDrop } from "react-dnd";
 import { Card } from "@/app/components/Card";
+import { CardProps } from "@/app/types/Card";
 import { BoardProps } from "@/app/types/Board";
 
 // ----------------------------------------------------------------------------------------------------
@@ -18,7 +19,10 @@ export const Board = (props: BoardProps) => {
   );
   const [showYears, setShowYears] = useState<{ [key: number]: boolean }>({});
   const [droppedCardId, setDroppedCardId] = useState<number | null>(null);
-
+  const [lastDroppedCard, setLastDroppedCard] = useState<{
+    card: CardProps;
+    playerIndex: number;
+  } | null>(null);
   // Board の状態をリセット
   useEffect(() => {
     if (props.isCorrectOrder === null) {
@@ -37,6 +41,13 @@ export const Board = (props: BoardProps) => {
         : props.playerCards.flat().find((card) => card.id === item.id);
 
       if (cardToMove) {
+        // 手札からドロップされたカードの情報を保存
+        if (!item.isTableCard) {
+          setLastDroppedCard({
+            card: cardToMove,
+            playerIndex: item.playerIndex,
+          });
+        }
         // 出したカードのプレイヤーのインデックスを保存（手札からの場合のみ）
         if (!item.isTableCard) {
           setDroppedPlayerIndex(item.playerIndex);
@@ -181,6 +192,32 @@ export const Board = (props: BoardProps) => {
       `}
     >
       <h2>場に出たカード</h2>
+      <button
+        onClick={() => {
+          if (lastDroppedCard) {
+            const { card, playerIndex } = lastDroppedCard;
+
+            // 手札に戻す
+            const updatedPlayerCards = [...props.playerCards];
+            updatedPlayerCards[playerIndex].push(card);
+            props.setPlayerCards(updatedPlayerCards);
+
+            // 場から削除
+            const updatedTableCards = props.tableCards.filter(
+              (c) => c.id !== card.id
+            );
+            props.setTableCards(updatedTableCards);
+
+            // ステートのリセット
+            setLastDroppedCard(null);
+          }
+        }}
+        // 戻すカードがない場合は無効
+        disabled={!lastDroppedCard}
+      >
+        手札に戻す
+      </button>
+
       {props.tableCards.length > 0 && (
         <div
           css={css`
