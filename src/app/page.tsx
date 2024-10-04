@@ -73,7 +73,7 @@ const Home = () => {
           <ul>
             {rankings.map((playerIndex, rank) => (
               <li key={playerIndex}>
-                順位 {rank + 1}: プレイヤー {playerIndex + 1}
+                {rank + 1}位: プレイヤー {playerIndex + 1}
               </li>
             ))}
           </ul>

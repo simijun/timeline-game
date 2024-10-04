@@ -24,7 +24,6 @@ export const PlayerHand = (props: PlayerHandProps) => {
           {props.playerCards.map((playerHand, playerIndex) => (
             <div key={`player-${playerIndex}`}>
               <h3>プレイヤー {playerIndex + 1}</h3>
-              {/* 自分のターンのときだけドラッグできる */}
               <div
                 css={css`
                   display: flex;
@@ -35,7 +34,7 @@ export const PlayerHand = (props: PlayerHandProps) => {
               >
                 {playerHand.map((card, cardIndex) => (
                   <div
-                    // 3つの要素を組み合わせてユニークなkeyを生成
+                    // playerIndexとcardIndexの重複が起きないようユニークなkeyを生成
                     key={`player-${playerIndex}-card-${cardIndex}`}
                     css={css`
                       margin-bottom: 10px;
