@@ -24,11 +24,13 @@ export const PlayerHand = (props: PlayerHandProps) => {
           {props.playerCards.map((playerHand, playerIndex) => (
             <div key={`player-${playerIndex}`}>
               <h3>プレイヤー {playerIndex + 1}</h3>
+              {/* 自分のターンのときだけドラッグできる */}
               <div
                 css={css`
                   display: flex;
                   flex-direction: column;
                   align-items: center;
+                  opacity: ${playerIndex === props.currentTurn ? 1 : 0.5};
                 `}
               >
                 {playerHand.map((card, cardIndex) => (
@@ -45,6 +47,7 @@ export const PlayerHand = (props: PlayerHandProps) => {
                       card={card}
                       isTableCard={false}
                       showYear={false}
+                      isDraggable={playerIndex === props.currentTurn}
                     />
                   </div>
                 ))}

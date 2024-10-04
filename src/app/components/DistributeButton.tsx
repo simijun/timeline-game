@@ -25,7 +25,7 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     );
 
     // 各プレイヤーに4枚ずつカードを配布する
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 1; i++) {
       for (let j = 0; j < props.playerCount; j++) {
         const cardToDistribute = shuffledCards.pop();
         if (cardToDistribute) {

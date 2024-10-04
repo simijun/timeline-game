@@ -6,7 +6,7 @@ import { CardProps } from "@/app/types/Card";
  * - index：カードの並び順
  * - isTableCard：場のカードかどうかのフラグ
  * - playerIndex：プレイヤーのインデックス（テーブルカードの場合は使用しないためオプション）
- * - setIsCorrectOrder：正解・不正解の更新関数
+ * - isDraggable：カードがドラッグ可能かどうかのフラグ
 
  */
 export type DraggableCardProps = {
@@ -15,4 +15,5 @@ export type DraggableCardProps = {
   isTableCard: boolean;
   playerIndex?: number;
   showYear: boolean;
+  isDraggable: boolean;
 };

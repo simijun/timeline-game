@@ -17,7 +17,7 @@ export const Board = (props: BoardProps) => {
     null
   );
   const [showYears, setShowYears] = useState<{ [key: number]: boolean }>({});
-  const [droppedCardId, setDroppedCardId] = useState<number | null>(null); // 追加
+  const [droppedCardId, setDroppedCardId] = useState<number | null>(null);
 
   // Board の状態をリセット
   useEffect(() => {
@@ -93,13 +93,32 @@ export const Board = (props: BoardProps) => {
 
     if (isSorted) {
       props.setIsCorrectOrder(true);
+
+      // 正解の時のみ手札がなくなったプレイヤーを順位に追加
+      if (
+        droppedPlayerIndex !== null &&
+        props.playerCards[droppedPlayerIndex].length === 0 &&
+        !props.rankings.includes(droppedPlayerIndex)
+      ) {
+        props.setRankings((prev) => [...prev, droppedPlayerIndex]);
+      }
+
+      // 全プレイヤーの手札が空か確認し、ゲーム終了メッセージを表示
+      if (props.rankings.length === props.playerCards.length - 1) {
+        console.log("全プレイヤーの手札がなくなりました。ゲーム終了です。");
+        return;
+      }
+
+      // 正解時に次のプレイヤーにターンを渡す
+      props.setCurrentTurn((prevTurn) => (prevTurn + 1) % props.playerCount);
     } else {
       props.setIsCorrectOrder(false);
 
+      // 不正解時の処理：場のカードを年代順に並べ直し、ドロップしたカードの年代を表示
       const sortedCards = [...props.tableCards].sort((a, b) => a.year - b.year);
       props.setTableCards(sortedCards);
 
-      // ドロップしたカードのみ `year` を表示
+      // ドロップしたカードのみ year を表示
       if (droppedCardId !== null) {
         setShowYears((prev) => ({ ...prev, [droppedCardId]: true }));
       }
@@ -114,8 +133,42 @@ export const Board = (props: BoardProps) => {
           props.setPlayerCards(updatedPlayerCards);
         }
       }
+
+      // 不正解時にターンを進める
+      props.setCurrentTurn((prevTurn) => (prevTurn + 1) % props.playerCount);
+    }
+
+    // 正解・不正解の判定が終わった後に、手札がなくなったプレイヤーを順位に追加
+    props.playerCards.forEach((hand, index) => {
+      if (hand.length === 0 && !props.rankings.includes(index)) {
+        props.setRankings((prev) => [...prev, index]);
+      }
+    });
+
+    // 全プレイヤーの手札が空か確認し、ゲーム終了メッセージを表示
+    if (props.rankings.length === props.playerCards.length) {
+      console.log("全プレイヤーの手札がなくなりました。ゲーム終了です。");
+      return;
     }
   };
+
+  useEffect(() => {
+    // プレイヤーの手札をチェックして、手札が0になったらランキングに追加
+    props.playerCards.forEach((hand, index) => {
+      if (hand.length === 0 && !props.rankings.includes(index)) {
+        // 手札が0になった順にプレイヤーを追加
+        props.setRankings((prev) => [...prev, index]);
+      }
+    });
+  }, [props.playerCards, props.rankings, props.setRankings]);
+
+  useEffect(() => {
+    // 全プレイヤーの手札が0ならゲーム終了
+    if (props.rankings.length === props.playerCards.length) {
+      console.log("ゲーム終了: 全プレイヤーの手札がなくなりました");
+      // ゲーム終了の表示など、追加の処理をここで行う
+    }
+  }, [props.rankings, props.playerCards.length]);
 
   return (
     <div
@@ -157,6 +210,7 @@ export const Board = (props: BoardProps) => {
                   isTableCard={true}
                   playerIndex={-1}
                   showYear={!!showYears[card.id]}
+                  isDraggable={props.isCorrectOrder === null}
                 />
               </div>
             ))}

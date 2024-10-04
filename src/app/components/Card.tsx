@@ -23,6 +23,8 @@ export const Card = (props: DraggableCardProps) => {
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
+    // ドラッグ可能かどうか（そのプレイヤーのターンかどうか）
+    canDrag: props.isDraggable,
   });
 
   drag(ref);

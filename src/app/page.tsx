@@ -24,6 +24,8 @@ const Home = () => {
   const [tableCards, setTableCards] = useState<CardProps[]>([]);
   const [playerCount, setPlayerCount] = useState<number>(2);
   const [isCorrectOrder, setIsCorrectOrder] = useState<boolean | null>(null);
+  const [rankings, setRankings] = useState<number[]>([]);
+  const [currentTurn, setCurrentTurn] = useState<number>(0);
 
   // Supabaseからカード情報を取得
   const fetchCards = async () => {
@@ -64,6 +66,19 @@ const Home = () => {
         padding: 20px;
       `}
     >
+      {/* 順位表示 */}
+      {rankings.length > 0 && (
+        <div>
+          <h2>ランキング</h2>
+          <ul>
+            {rankings.map((playerIndex, rank) => (
+              <li key={playerIndex}>
+                順位 {rank + 1}: プレイヤー {playerIndex + 1}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <PlayerCountPicker
         playerCount={playerCount}
         setPlayerCount={setPlayerCount}
@@ -80,12 +95,20 @@ const Home = () => {
           cards={cards}
           tableCards={tableCards}
           playerCards={playerCards}
+          playerCount={playerCount}
+          isCorrectOrder={isCorrectOrder}
+          rankings={rankings}
+          currentTurn={currentTurn}
           setTableCards={setTableCards}
           setPlayerCards={setPlayerCards}
-          isCorrectOrder={isCorrectOrder}
           setIsCorrectOrder={setIsCorrectOrder}
+          setRankings={setRankings}
+          setCurrentTurn={setCurrentTurn}
         />
-        <PlayerHand playerCards={playerCards} />
+        <div>
+          <h3>プレイヤー{currentTurn + 1}のターン</h3>
+        </div>
+        <PlayerHand playerCards={playerCards} currentTurn={currentTurn} />
       </DndProvider>
     </div>
   );
