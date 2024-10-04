@@ -17,16 +17,15 @@ export const Board = (props: BoardProps) => {
     null
   );
   const [showYears, setShowYears] = useState<{ [key: number]: boolean }>({});
+  const [droppedCardId, setDroppedCardId] = useState<number | null>(null); // 追加
 
   // Board の状態をリセット
   useEffect(() => {
-    // 正解・不正解のメッセージと表示状態のリセット
     if (props.isCorrectOrder === null) {
       setShowYears({});
     }
   }, [props.isCorrectOrder]);
 
-  // ドロップ位置を制限せず、任意の場所にカードを置けるようにする
   const [, drop] = useDrop({
     accept: "CARD",
     drop: (
@@ -34,10 +33,8 @@ export const Board = (props: BoardProps) => {
       monitor
     ) => {
       const cardToMove = item.isTableCard
-        ? // 場のカードを探す
-          props.tableCards.find((card) => card.id === item.id)
-        : // 手札からのカード
-          props.playerCards.flat().find((card) => card.id === item.id);
+        ? props.tableCards.find((card) => card.id === item.id)
+        : props.playerCards.flat().find((card) => card.id === item.id);
 
       if (cardToMove) {
         // 出したカードのプレイヤーのインデックスを保存（手札からの場合のみ）
@@ -45,9 +42,11 @@ export const Board = (props: BoardProps) => {
           setDroppedPlayerIndex(item.playerIndex);
         }
 
+        // ドロップしたカードのIDを追跡
+        setDroppedCardId(cardToMove.id);
+
         const updatedPlayerCards = item.isTableCard
-          ? // 場のカードの場合はプレイヤーの手札をそのままにする
-            props.playerCards
+          ? props.playerCards
           : props.playerCards.map((hand) =>
               hand.filter((card) => card.id !== item.id)
             );
@@ -62,28 +61,23 @@ export const Board = (props: BoardProps) => {
           const dropX = clientOffset.x - boardRect.left;
           let insertIndex = props.tableCards.length;
 
-          // ドロップ位置に基づいて挿入位置を特定
           for (let index = 0; index < props.tableCards.length; index++) {
             const cardElement = document.getElementById(
               `table-card-${props.tableCards[index].id}`
             );
             if (cardElement) {
               const cardRect = cardElement.getBoundingClientRect();
-              // ドロップ位置がこのカードの左側にある場合、その位置に挿入
               if (dropX < cardRect.left - boardRect.left + cardRect.width / 2) {
-                // 最初の条件に一致するインデックスでループを抜ける
                 insertIndex = index;
                 break;
               }
             }
           }
 
-          // 場のカードの挿入位置を更新
           const newTableCards = props.tableCards.filter(
             (card) => card.id !== item.id
-          ); // まず既存の位置からカードを削除
+          );
           newTableCards.splice(insertIndex, 0, cardToMove);
-          // 新しい位置にカードを挿入
           props.setTableCards(newTableCards);
         }
       }
@@ -92,7 +86,6 @@ export const Board = (props: BoardProps) => {
 
   drop(dropRef);
 
-  // 結果確認ボタンのロジック
   const checkOrder = () => {
     const isSorted = props.tableCards.every(
       (card, index, arr) => index === 0 || card.year >= arr[index - 1].year
@@ -107,18 +100,15 @@ export const Board = (props: BoardProps) => {
       props.setTableCards(sortedCards);
 
       // ドロップしたカードのみ `year` を表示
-      const lastDroppedCardId =
-        props.tableCards[props.tableCards.length - 1].id;
-      setShowYears((prev) => ({ ...prev, [lastDroppedCardId]: true }));
+      if (droppedCardId !== null) {
+        setShowYears((prev) => ({ ...prev, [droppedCardId]: true }));
+      }
 
       // 山札からカードを引く処理
       const newCard = props.cards.pop();
 
-      // 正しいプレイヤーの手札に追加
       if (newCard !== undefined && droppedPlayerIndex !== null) {
         const updatedPlayerCards = [...props.playerCards];
-
-        // 手札が存在するか確認してから追加
         if (updatedPlayerCards[droppedPlayerIndex]) {
           updatedPlayerCards[droppedPlayerIndex].push(newCard);
           props.setPlayerCards(updatedPlayerCards);
@@ -138,36 +128,55 @@ export const Board = (props: BoardProps) => {
       `}
     >
       <h2>場に出たカード</h2>
-      <div
-        css={css`
-          display: flex;
-          justify-content: flex-start;
-          flex-direction: row;
-          margin-bottom: 20px;
-        `}
-      >
-        {props.tableCards.map((card, index) => (
+      {props.tableCards.length > 0 && (
+        <div
+          css={css`
+            display: flex;
+            overflow-x: auto;
+            max-width: 80vw;
+            padding: 10px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+          `}
+        >
           <div
-            key={`table-card-${index}-${card.id}`}
-            id={`table-card-${card.id}`}
+            css={css`
+              display: flex;
+              justify-content: flex-start;
+              flex-direction: row;
+              margin-bottom: 20px;
+            `}
           >
-            <Card
-              index={index}
-              card={card}
-              isTableCard={true}
-              playerIndex={-1}
-              showYear={!!showYears[card.id]}
-            />
+            {props.tableCards.map((card, index) => (
+              <div
+                key={`table-card-${index}-${card.id}`}
+                id={`table-card-${card.id}`}
+              >
+                <Card
+                  index={index}
+                  card={card}
+                  isTableCard={true}
+                  playerIndex={-1}
+                  showYear={!!showYears[card.id]}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
       {props.isCorrectOrder !== null && (
         <div>
           {props.isCorrectOrder ? (
-            <p>順番が正しいです！</p>
+            <p>正解!</p>
           ) : (
-            <p>順番が間違っています！カードを引きます。</p>
+            <p
+              css={css`
+                color: red;
+                font-weight: bold;
+              `}
+            >
+              不正解!1枚ドロー!
+            </p>
           )}
         </div>
       )}
