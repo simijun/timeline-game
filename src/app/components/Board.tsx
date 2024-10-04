@@ -192,6 +192,8 @@ export const Board = (props: BoardProps) => {
       `}
     >
       <h2>場に出たカード</h2>
+
+      {/* 結果確認前であればドロップしたカードを手札に戻すボタン */}
       <button
         onClick={() => {
           if (lastDroppedCard) {
@@ -208,7 +210,6 @@ export const Board = (props: BoardProps) => {
             );
             props.setTableCards(updatedTableCards);
 
-            // ステートのリセット
             setLastDroppedCard(null);
           }
         }}
