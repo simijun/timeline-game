@@ -23,6 +23,7 @@ const Home = () => {
   const [playerCards, setPlayerCards] = useState<CardProps[][]>([]);
   const [tableCards, setTableCards] = useState<CardProps[]>([]);
   const [playerCount, setPlayerCount] = useState<number>(2);
+  const [isCorrectOrder, setIsCorrectOrder] = useState<boolean | null>(null);
 
   // Supabaseからカード情報を取得
   const fetchCards = async () => {
@@ -69,9 +70,10 @@ const Home = () => {
       />
       <DistributeButton
         cards={cards}
-        playerCount={playerCount}
         setCards={setCards}
+        playerCount={playerCount}
         onDistribute={onDistribute}
+        setIsCorrectOrder={setIsCorrectOrder}
       />
       <DndProvider backend={HTML5Backend}>
         <Board
@@ -80,6 +82,8 @@ const Home = () => {
           playerCards={playerCards}
           setTableCards={setTableCards}
           setPlayerCards={setPlayerCards}
+          isCorrectOrder={isCorrectOrder}
+          setIsCorrectOrder={setIsCorrectOrder}
         />
         <PlayerHand playerCards={playerCards} />
       </DndProvider>

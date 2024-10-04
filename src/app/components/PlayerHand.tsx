@@ -22,7 +22,7 @@ export const PlayerHand = (props: PlayerHandProps) => {
           `}
         >
           {props.playerCards.map((playerHand, playerIndex) => (
-            <div key={playerIndex}>
+            <div key={`player-${playerIndex}`}>
               <h3>プレイヤー {playerIndex + 1}</h3>
               <div
                 css={css`
@@ -33,7 +33,8 @@ export const PlayerHand = (props: PlayerHandProps) => {
               >
                 {playerHand.map((card, cardIndex) => (
                   <div
-                    key={card.id}
+                    // 3つの要素を組み合わせてユニークなkeyを生成
+                    key={`player-${playerIndex}-card-${cardIndex}`}
                     css={css`
                       margin-bottom: 10px;
                     `}
@@ -43,6 +44,7 @@ export const PlayerHand = (props: PlayerHandProps) => {
                       playerIndex={playerIndex}
                       card={card}
                       isTableCard={false}
+                      showYear={false}
                     />
                   </div>
                 ))}

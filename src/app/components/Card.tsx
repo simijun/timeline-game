@@ -10,7 +10,7 @@ import { DraggableCardProps } from "@/app/types/DraggableCard";
 /**
  * カードコンポーネント
  */
-export const Card = (props: DraggableCardProps & { showYear: boolean }) => {
+export const Card = (props: DraggableCardProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ isDragging }, drag] = useDrag({
@@ -60,7 +60,6 @@ export const Card = (props: DraggableCardProps & { showYear: boolean }) => {
             `}
           />
           <h3>{props.card.event}</h3>
-          {/* 年代を赤文字で表示 */}
           {props.showYear && (
             <p
               css={css`
