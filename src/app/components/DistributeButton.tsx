@@ -13,11 +13,6 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     // 元のカードをシャッフル
     const shuffledCards = [...props.cards].sort(() => 0.5 - Math.random());
 
-    const uniqueIds = new Set(props.cards.map((card) => card.id));
-    if (uniqueIds.size !== props.cards.length) {
-      console.warn("カードのIDが重複しています");
-    }
-
     // プレイヤーごとの手札を管理するための二次元配列を用意
     const playerCards: CardProps[][] = Array.from(
       { length: props.playerCount },
@@ -25,7 +20,6 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     );
 
     // 各プレイヤーに4枚ずつカードを配布する
-    // ※すぐ検証できるよう2枚にしている（本来は4枚）
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < props.playerCount; j++) {
         const cardToDistribute = shuffledCards.pop();
@@ -41,9 +35,10 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     // 配布後の手札と場のカードを更新するためのコールバックを呼び出す
     if (tableCard) {
       props.onDistribute(playerCards, tableCard);
-
-      // 正解・不正解の状態をリセット
+      // プレイヤー1から始める
+      props.setCurrentTurn(0);
       props.setIsCorrectOrder(null);
+      props.setRankings([]);
     }
   };
 

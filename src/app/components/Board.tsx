@@ -18,19 +18,25 @@ export const Board = (props: BoardProps) => {
     null
   );
   const [showYears, setShowYears] = useState<{ [key: number]: boolean }>({});
-  const [droppedCardId, setDroppedCardId] = useState<number | null>(null);
   const [lastDroppedCard, setLastDroppedCard] = useState<{
     card: CardProps;
     playerIndex: number;
   } | null>(null);
+
+  // ドロップしたカードが結果確認前かどうかの状態を管理する
+  const [draggableCards, setDraggableCards] = useState<Set<number>>(new Set());
+  const [canCheckResult, setCanCheckResult] = useState<boolean>(false);
+
   // Board の状態をリセット
   useEffect(() => {
     if (props.isCorrectOrder === null) {
       setShowYears({});
+      setCanCheckResult(false); // ドロップ後に結果確認が可能になる
+      setDraggableCards(new Set()); // 状態のリセット
     }
   }, [props.isCorrectOrder]);
 
-  const [, drop] = useDrop({
+  const [{ isOver }, drop] = useDrop({
     accept: "CARD",
     drop: (
       item: { id: number; isTableCard: boolean; playerIndex: number },
@@ -41,58 +47,77 @@ export const Board = (props: BoardProps) => {
         : props.playerCards.flat().find((card) => card.id === item.id);
 
       if (cardToMove) {
-        // 手札からドロップされたカードの情報を保存
-        if (!item.isTableCard) {
-          setLastDroppedCard({
-            card: cardToMove,
-            playerIndex: item.playerIndex,
-          });
-        }
-        // 出したカードのプレイヤーのインデックスを保存（手札からの場合のみ）
-        if (!item.isTableCard) {
-          setDroppedPlayerIndex(item.playerIndex);
-        }
-
-        // ドロップしたカードのIDを追跡
-        setDroppedCardId(cardToMove.id);
-
-        const updatedPlayerCards = item.isTableCard
-          ? props.playerCards
-          : props.playerCards.map((hand) =>
-              hand.filter((card) => card.id !== item.id)
-            );
-
-        props.setPlayerCards(updatedPlayerCards);
-
-        // ドロップ位置の特定
-        const clientOffset = monitor.getClientOffset();
-        const boardRect = dropRef.current?.getBoundingClientRect();
-
-        if (clientOffset && boardRect) {
-          const dropX = clientOffset.x - boardRect.left;
-          let insertIndex = props.tableCards.length;
-
-          for (let index = 0; index < props.tableCards.length; index++) {
-            const cardElement = document.getElementById(
-              `table-card-${props.tableCards[index].id}`
-            );
-            if (cardElement) {
-              const cardRect = cardElement.getBoundingClientRect();
-              if (dropX < cardRect.left - boardRect.left + cardRect.width / 2) {
-                insertIndex = index;
-                break;
-              }
-            }
+        // カードを動かす条件: 手札からのドロップ、または場のカードを動かす
+        if (
+          !item.isTableCard ||
+          (item.isTableCard && props.currentTurn === droppedPlayerIndex)
+        ) {
+          // 手札からドロップされた場合
+          if (!item.isTableCard && item.playerIndex === props.currentTurn) {
+            setLastDroppedCard({
+              card: cardToMove,
+              playerIndex: item.playerIndex,
+            });
+            setDroppedPlayerIndex(item.playerIndex);
           }
 
-          const newTableCards = props.tableCards.filter(
-            (card) => card.id !== item.id
-          );
-          newTableCards.splice(insertIndex, 0, cardToMove);
-          props.setTableCards(newTableCards);
+          // どちらの場合でも`draggableCards`に追加
+          setDraggableCards((prev) => {
+            const newSet = new Set(prev);
+            newSet.add(cardToMove.id);
+            return newSet;
+          });
+
+          // ドロップ後のプレイヤーの手札更新
+          const updatedPlayerCards = item.isTableCard
+            ? props.playerCards
+            : props.playerCards.map((hand) =>
+                hand.filter((card) => card.id !== item.id)
+              );
+
+          props.setPlayerCards(updatedPlayerCards);
+
+          // ドロップ位置の特定とカードの挿入
+          const clientOffset = monitor.getClientOffset();
+          const boardRect = dropRef.current?.getBoundingClientRect();
+
+          if (clientOffset && boardRect) {
+            const dropX = clientOffset.x - boardRect.left;
+            let insertIndex = props.tableCards.length;
+
+            // カードの挿入位置を計算
+            for (let index = 0; index < props.tableCards.length; index++) {
+              const cardElement = document.getElementById(
+                `table-card-${props.tableCards[index].id}`
+              );
+              if (cardElement) {
+                const cardRect = cardElement.getBoundingClientRect();
+                if (
+                  dropX <
+                  cardRect.left - boardRect.left + cardRect.width / 2
+                ) {
+                  insertIndex = index;
+                  break;
+                }
+              }
+            }
+
+            // カードを場の新しい位置に挿入
+            const newTableCards = props.tableCards.filter(
+              (card) => card.id !== item.id
+            );
+            newTableCards.splice(insertIndex, 0, cardToMove);
+            props.setTableCards(newTableCards);
+
+            // カードがドロップされたら結果確認が可能になる
+            setCanCheckResult(true);
+          }
         }
       }
     },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
   });
 
   drop(dropRef);
@@ -105,7 +130,7 @@ export const Board = (props: BoardProps) => {
     if (isSorted) {
       props.setIsCorrectOrder(true);
 
-      // 正解の時のみ手札がなくなったプレイヤーを順位に追加
+      // 正解の場合に、手札が空のプレイヤーを順位に追加
       if (
         droppedPlayerIndex !== null &&
         props.playerCards[droppedPlayerIndex].length === 0 &&
@@ -113,73 +138,38 @@ export const Board = (props: BoardProps) => {
       ) {
         props.setRankings((prev) => [...prev, droppedPlayerIndex]);
       }
-
-      // 全プレイヤーの手札が空か確認し、ゲーム終了メッセージを表示
-      if (props.rankings.length === props.playerCards.length - 1) {
-        console.log("全プレイヤーの手札がなくなりました。ゲーム終了です。");
-        return;
-      }
-
-      // 正解時に次のプレイヤーにターンを渡す
-      props.setCurrentTurn((prevTurn) => (prevTurn + 1) % props.playerCount);
     } else {
       props.setIsCorrectOrder(false);
 
-      // 不正解時の処理：場のカードを年代順に並べ直し、ドロップしたカードの年代を表示
-      const sortedCards = [...props.tableCards].sort((a, b) => a.year - b.year);
-      props.setTableCards(sortedCards);
-
-      // ドロップしたカードのみ year を表示
-      if (droppedCardId !== null) {
-        setShowYears((prev) => ({ ...prev, [droppedCardId]: true }));
-      }
-
-      // 山札からカードを引く処理
+      // 不正解の場合に山札からカードを引く処理
       const newCard = props.cards.pop();
-
       if (newCard !== undefined && droppedPlayerIndex !== null) {
         const updatedPlayerCards = [...props.playerCards];
-        if (updatedPlayerCards[droppedPlayerIndex]) {
-          updatedPlayerCards[droppedPlayerIndex].push(newCard);
-          props.setPlayerCards(updatedPlayerCards);
-        }
+        updatedPlayerCards[droppedPlayerIndex].push(newCard);
+        props.setPlayerCards(updatedPlayerCards);
       }
-
-      // 不正解時にターンを進める
-      props.setCurrentTurn((prevTurn) => (prevTurn + 1) % props.playerCount);
     }
 
-    // 正解・不正解の判定が終わった後に、手札がなくなったプレイヤーを順位に追加
-    props.playerCards.forEach((hand, index) => {
-      if (hand.length === 0 && !props.rankings.includes(index)) {
-        props.setRankings((prev) => [...prev, index]);
-      }
-    });
-
     // 全プレイヤーの手札が空か確認し、ゲーム終了メッセージを表示
-    if (props.rankings.length === props.playerCards.length) {
+    if (props.rankings.length === props.playerCards.length - 1) {
       console.log("全プレイヤーの手札がなくなりました。ゲーム終了です。");
       return;
     }
-  };
 
-  useEffect(() => {
-    // プレイヤーの手札をチェックして、手札が0になったらランキングに追加
-    props.playerCards.forEach((hand, index) => {
-      if (hand.length === 0 && !props.rankings.includes(index)) {
-        // 手札が0になった順にプレイヤーを追加
-        props.setRankings((prev) => [...prev, index]);
+    // 正解・不正解に関わらずターンを次に進める
+    props.setCurrentTurn((prevTurn) => {
+      let nextTurn = (prevTurn + 1) % props.playerCount;
+      // 順位が確定したプレイヤーをスキップ
+      while (props.rankings.includes(nextTurn)) {
+        nextTurn = (nextTurn + 1) % props.playerCount;
       }
+      return nextTurn;
     });
-  }, [props.playerCards, props.rankings, props.setRankings]);
 
-  useEffect(() => {
-    // 全プレイヤーの手札が0ならゲーム終了
-    if (props.rankings.length === props.playerCards.length) {
-      console.log("ゲーム終了: 全プレイヤーの手札がなくなりました");
-      // ゲーム終了の表示など、追加の処理をここで行う
-    }
-  }, [props.rankings, props.playerCards.length]);
+    // 結果確認後にはドロップしたカードは動かせないようにする
+    setDraggableCards(new Set());
+    setCanCheckResult(false);
+  };
 
   return (
     <div
@@ -189,14 +179,15 @@ export const Board = (props: BoardProps) => {
         flex-direction: column;
         align-items: center;
         padding: 20px;
+        background-color: ${isOver ? "lightblue" : "transparent"};
       `}
     >
       <h2>場に出たカード</h2>
 
-      {/* 結果確認前であればドロップしたカードを手札に戻すボタン */}
+      {/* 手札に戻すボタン */}
       <button
         onClick={() => {
-          if (lastDroppedCard) {
+          if (lastDroppedCard && props.isCorrectOrder === null) {
             const { card, playerIndex } = lastDroppedCard;
 
             // 手札に戻す
@@ -210,11 +201,20 @@ export const Board = (props: BoardProps) => {
             );
             props.setTableCards(updatedTableCards);
 
+            // 戻したカードをdraggableCardsから削除
+            setDraggableCards((prev) => {
+              const newSet = new Set(prev);
+              newSet.delete(card.id);
+              return newSet;
+            });
+
+            // lastDroppedCardをリセット
             setLastDroppedCard(null);
+            setCanCheckResult(false);
           }
         }}
-        // 戻すカードがない場合は無効
-        disabled={!lastDroppedCard}
+        // ドロップ後かつ結果確認がまだであればアクティブ
+        disabled={!lastDroppedCard || props.isCorrectOrder !== null}
       >
         手札に戻す
       </button>
@@ -248,7 +248,11 @@ export const Board = (props: BoardProps) => {
                   isTableCard={true}
                   playerIndex={-1}
                   showYear={!!showYears[card.id]}
-                  isDraggable={props.isCorrectOrder === null}
+                  isDraggable={
+                    props.isCorrectOrder === null &&
+                    draggableCards.has(card.id) &&
+                    droppedPlayerIndex === props.currentTurn // ドロップしたカードのプレイヤーが現在のターンのプレイヤーである場合のみ
+                  }
                 />
               </div>
             ))}
@@ -267,13 +271,22 @@ export const Board = (props: BoardProps) => {
                 font-weight: bold;
               `}
             >
-              不正解!1枚ドロー!
+              不正解!
+              <br />
+              1枚ドロー!
             </p>
           )}
         </div>
       )}
 
-      <button onClick={checkOrder}>結果を確認</button>
+      {/* 結果を確認ボタン */}
+      <button
+        onClick={checkOrder}
+        // ドロップ後かつ結果確認がまだであればアクティブ
+        disabled={!canCheckResult}
+      >
+        結果を確認
+      </button>
     </div>
   );
 };

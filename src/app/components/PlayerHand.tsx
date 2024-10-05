@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { css } from "@emotion/react";
 import { Card } from "@/app/components/Card";
 import { PlayerHandProps } from "@/app/types/PlayerHand";
@@ -10,8 +11,44 @@ import { PlayerHandProps } from "@/app/types/PlayerHand";
  * プレイヤーの手札
  */
 export const PlayerHand = (props: PlayerHandProps) => {
+  const [hintMode, setHintMode] = useState(false); // ヒントモードの状態
+  const [cardShowYear, setCardShowYear] = useState<{ [key: number]: boolean }>(
+    {}
+  ); // カードIDで管理
+
+  // ヒントを使ってカードの年代を表示する関数
+  const revealYear = (playerIndex: number, cardId: number) => {
+    if (!props.hintUsed[playerIndex] && hintMode) {
+      // ヒントを使う処理（ヒントの使用フラグを更新）
+      const newHintUsed = [...props.hintUsed];
+      newHintUsed[playerIndex] = true;
+      props.setHintUsed(newHintUsed);
+
+      // 対象のカードの年代を表示するようにする
+      setCardShowYear((prev) => ({
+        ...prev,
+        // カードのIDで状態を管理
+        [cardId]: true,
+      }));
+
+      // ヒントを使った後はヒントモードをオフにする
+      setHintMode(false);
+    }
+  };
+
   return (
     <>
+      {/* ヒントボタン */}
+      <button
+        onClick={() => {
+          setHintMode(true);
+        }}
+        // すでにヒントを使ったプレイヤーはボタンを無効化
+        disabled={props.hintUsed[props.currentTurn]}
+      >
+        ヒントを使う
+      </button>
+
       {props.playerCards.length > 0 && (
         <div
           css={css`
@@ -34,18 +71,19 @@ export const PlayerHand = (props: PlayerHandProps) => {
               >
                 {playerHand.map((card, cardIndex) => (
                   <div
-                    // playerIndexとcardIndexの重複が起きないようユニークなkeyを生成
-                    key={`player-${playerIndex}-card-${cardIndex}`}
+                    key={`player-${playerIndex}-card-${cardIndex}-${card.id}`}
                     css={css`
                       margin-bottom: 10px;
                     `}
+                    onClick={() => revealYear(playerIndex, card.id)}
                   >
                     <Card
-                      index={cardIndex}
+                      index={card.id}
                       playerIndex={playerIndex}
                       card={card}
                       isTableCard={false}
-                      showYear={false}
+                      // カードのIDでヒント表示を管理
+                      showYear={!!cardShowYear[card.id]}
                       isDraggable={playerIndex === props.currentTurn}
                     />
                   </div>

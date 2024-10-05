@@ -7,6 +7,8 @@ import { CardProps } from "@/app/types/Card";
  * - setCards: カード更新処理
  * - onDistribute：カード配布処理
  * - setIsCorrectOrder：正解・不正解の更新関数
+ * - setCurrentTurn: プレイヤーターンの更新関数
+ * - setRankings: プレイヤー順位の更新関数
  */
 export type DistributeCardsProps = {
   cards: CardProps[];
@@ -14,4 +16,6 @@ export type DistributeCardsProps = {
   setCards: (cards: CardProps[]) => void;
   onDistribute: (playerCards: CardProps[][], tableCard: CardProps) => void;
   setIsCorrectOrder: (value: boolean | null) => void;
+  setCurrentTurn: (turn: number) => void;
+  setRankings: (rank: number[]) => void;
 };

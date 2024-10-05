@@ -26,6 +26,7 @@ const Home = () => {
   const [isCorrectOrder, setIsCorrectOrder] = useState<boolean | null>(null);
   const [rankings, setRankings] = useState<number[]>([]);
   const [currentTurn, setCurrentTurn] = useState<number>(0);
+  const [hintUsed, setHintUsed] = useState<boolean[]>([]);
 
   // Supabaseからカード情報を取得
   const fetchCards = async () => {
@@ -41,7 +42,7 @@ const Home = () => {
     }
   };
 
-  // supabaseの全レコードからランダムに50個抽出
+  // ランダムに50個抽出
   const getRandomCards = (cards: CardProps[], count: number) => {
     const shuffled = [...cards].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
@@ -51,6 +52,9 @@ const Home = () => {
   const onDistribute = (playerCards: CardProps[][], tableCard: CardProps) => {
     setPlayerCards(playerCards);
     setTableCards([tableCard]);
+
+    // ヒント使用の状態をリセット
+    setHintUsed(new Array(playerCount).fill(false));
   };
 
   useEffect(() => {
@@ -89,6 +93,8 @@ const Home = () => {
         playerCount={playerCount}
         onDistribute={onDistribute}
         setIsCorrectOrder={setIsCorrectOrder}
+        setCurrentTurn={setCurrentTurn}
+        setRankings={setRankings}
       />
       <DndProvider backend={HTML5Backend}>
         <Board
@@ -108,7 +114,12 @@ const Home = () => {
         <div>
           <h3>プレイヤー{currentTurn + 1}のターン</h3>
         </div>
-        <PlayerHand playerCards={playerCards} currentTurn={currentTurn} />
+        <PlayerHand
+          playerCards={playerCards}
+          currentTurn={currentTurn}
+          hintUsed={hintUsed}
+          setHintUsed={setHintUsed}
+        />
       </DndProvider>
     </div>
   );
