@@ -1,5 +1,5 @@
 import { CardProps } from "@/app/types/Card";
-import { DistributeCardsProps } from "@/app/types/DistributeButton";
+import { DistributeCardsProps } from "@/app/types/distributeButton";
 
 // ----------------------------------------------------------------------------------------------------
 // Reactコンポーネント

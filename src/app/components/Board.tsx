@@ -19,12 +19,18 @@ export const Board = (props: BoardProps) => {
   );
   const [canCheckResult, setCanCheckResult] = useState<boolean>(false);
   const [showYears, setShowYears] = useState<{ [key: number]: boolean }>({});
+  const [lastDroppedCard, setLastDroppedCard] = useState<{
+    card: CardProps;
+    playerIndex: number;
+  } | null>(null);
+  const [canReturnCard, setCanReturnCard] = useState<boolean>(false); // 手札に戻すボタンのアクティブ状態
 
   // Board の状態をリセット
   useEffect(() => {
     if (props.isCorrectOrder === null) {
       setShowYears({});
       setCanCheckResult(false);
+      setCanReturnCard(false); // 結果確認後は非アクティブにする
     }
   }, [props.isCorrectOrder]);
 
@@ -39,8 +45,9 @@ export const Board = (props: BoardProps) => {
         : props.playerCards.flat().find((card) => card.id === item.id);
 
       if (cardToMove) {
-        // ドロップされたカードのIDを保存
+        // ドロップされたカードの情報を保存
         setLastDroppedCardId(cardToMove.id);
+        setLastDroppedCard({ card: cardToMove, playerIndex: item.playerIndex });
 
         // プレイヤーの手札を更新
         const updatedPlayerCards = item.isTableCard
@@ -80,8 +87,9 @@ export const Board = (props: BoardProps) => {
           newTableCards.splice(insertIndex, 0, cardToMove);
           props.setTableCards(newTableCards);
 
-          // カードがドロップされたら結果確認が可能になる
+          // カードがドロップされたら結果確認と手札に戻すボタンをアクティブに
           setCanCheckResult(true);
+          setCanReturnCard(true);
         }
       }
     },
@@ -93,12 +101,19 @@ export const Board = (props: BoardProps) => {
   drop(dropRef);
 
   const checkOrder = () => {
+    // 年代が昇順であるかをチェック
     const isSorted = props.tableCards.every(
       (card, index, arr) => index === 0 || card.year >= arr[index - 1].year
     );
 
     if (isSorted) {
       props.setIsCorrectOrder(true);
+
+      // 正解で全てのプレイヤーの手札がなくなった場合、ゲーム終了
+      if (props.playerCards.every((hand) => hand.length === 0)) {
+        console.log("ゲーム終了: 全プレイヤーの手札がなくなりました");
+        return; // ゲームを終了
+      }
     } else {
       props.setIsCorrectOrder(false);
 
@@ -122,11 +137,53 @@ export const Board = (props: BoardProps) => {
       }
     }
 
-    // 正解・不正解に関わらずターンを次に進める
-    props.setCurrentTurn((prevTurn) => (prevTurn + 1) % props.playerCount);
+    // 次のターンのプレイヤーを選ぶ
+    props.setCurrentTurn((prevTurn) => {
+      let nextTurn = (prevTurn + 1) % props.playerCount;
 
-    // 結果確認後にはドロップしたカードは動かせないようにする
+      // 手札が空のプレイヤーはスキップ
+      while (props.playerCards[nextTurn].length === 0) {
+        nextTurn = (nextTurn + 1) % props.playerCount;
+      }
+      return nextTurn;
+    });
+
+    // 結果確認後にはドロップしたカードは動かせないようにし、手札に戻すボタンを非アクティブにする
     setCanCheckResult(false);
+    setCanReturnCard(false);
+  };
+
+  // 手札に戻す処理
+  const returnCardToHand = () => {
+    if (lastDroppedCard) {
+      const { card, playerIndex } = lastDroppedCard;
+
+      // プレイヤーインデックスの確認
+      if (
+        playerIndex >= 0 &&
+        playerIndex < props.playerCards.length &&
+        props.playerCards[playerIndex]
+      ) {
+        // 手札に戻す
+        const updatedPlayerCards = [...props.playerCards];
+        updatedPlayerCards[playerIndex].push(card);
+        props.setPlayerCards(updatedPlayerCards);
+
+        // 場から削除
+        const updatedTableCards = props.tableCards.filter(
+          (c) => c.id !== card.id
+        );
+        props.setTableCards(updatedTableCards);
+
+        // 状態をリセット
+        setLastDroppedCard(null);
+        setLastDroppedCardId(null);
+        setCanCheckResult(false);
+        setCanReturnCard(false); // 手札に戻したらボタンを非アクティブにする
+      } else {
+        console.error("Invalid player index:", playerIndex);
+      }
+    }
   };
 
   return (
@@ -141,6 +198,15 @@ export const Board = (props: BoardProps) => {
       `}
     >
       <h2>場に出たカード</h2>
+
+      {/* 手札に戻すボタン */}
+      <button
+        onClick={returnCardToHand}
+        // lastDroppedCard が存在すればアクティブ
+        disabled={!canReturnCard}
+      >
+        手札に戻す
+      </button>
 
       {props.tableCards.length > 0 && (
         <div
