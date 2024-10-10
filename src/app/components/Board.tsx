@@ -23,14 +23,14 @@ export const Board = (props: BoardProps) => {
     card: CardProps;
     playerIndex: number;
   } | null>(null);
-  const [canReturnCard, setCanReturnCard] = useState<boolean>(false); // 手札に戻すボタンのアクティブ状態
+  const [canReturnCard, setCanReturnCard] = useState<boolean>(false);
 
   // Board の状態をリセット
   useEffect(() => {
     if (props.isCorrectOrder === null) {
       setShowYears({});
       setCanCheckResult(false);
-      setCanReturnCard(false); // 結果確認後は非アクティブにする
+      setCanReturnCard(false);
     }
   }, [props.isCorrectOrder]);
 
@@ -112,7 +112,7 @@ export const Board = (props: BoardProps) => {
       // 正解で全てのプレイヤーの手札がなくなった場合、ゲーム終了
       if (props.playerCards.every((hand) => hand.length === 0)) {
         console.log("ゲーム終了: 全プレイヤーの手札がなくなりました");
-        return; // ゲームを終了
+        return;
       }
     } else {
       props.setIsCorrectOrder(false);
@@ -127,13 +127,11 @@ export const Board = (props: BoardProps) => {
       }
 
       // 山札からカードを引く処理
-      const newCard = props.cards.pop();
-      if (newCard !== undefined) {
+      const newCard = props.drawCard();
+      if (newCard !== undefined && newCard !== null) {
         const updatedPlayerCards = [...props.playerCards];
-        if (updatedPlayerCards[props.currentTurn]) {
-          updatedPlayerCards[props.currentTurn].push(newCard);
-          props.setPlayerCards(updatedPlayerCards);
-        }
+        updatedPlayerCards[props.currentTurn].push(newCard);
+        props.setPlayerCards(updatedPlayerCards);
       }
     }
 
@@ -200,11 +198,7 @@ export const Board = (props: BoardProps) => {
       <h2>場に出たカード</h2>
 
       {/* 手札に戻すボタン */}
-      <button
-        onClick={returnCardToHand}
-        // lastDroppedCard が存在すればアクティブ
-        disabled={!canReturnCard}
-      >
+      <button onClick={returnCardToHand} disabled={!canReturnCard}>
         手札に戻す
       </button>
 
@@ -266,11 +260,7 @@ export const Board = (props: BoardProps) => {
       )}
 
       {/* 結果を確認ボタン */}
-      <button
-        onClick={checkOrder}
-        // ドロップ後かつ結果確認がまだであればアクティブ
-        disabled={!canCheckResult}
-      >
+      <button onClick={checkOrder} disabled={!canCheckResult}>
         結果を確認
       </button>
     </div>

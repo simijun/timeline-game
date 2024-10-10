@@ -11,22 +11,14 @@ import { PlayerHand } from "@/app/components/PlayerHand";
 import { CardProps } from "@/app/types/Card";
 import { PlayerCountPicker } from "@/app/components/PlayerCountPicker";
 
-// ----------------------------------------------------------------------------------------------------
-// Reactコンポーネント
-// ----------------------------------------------------------------------------------------------------
-
-/**
- * タイムラインゲーム画面
- */
 const Home = () => {
-  const [cards, setCards] = useState<CardProps[]>([]);
+  const [deck, setDeck] = useState<CardProps[]>([]);
   const [playerCards, setPlayerCards] = useState<CardProps[][]>([]);
   const [tableCards, setTableCards] = useState<CardProps[]>([]);
   const [playerCount, setPlayerCount] = useState<number>(2);
   const [isCorrectOrder, setIsCorrectOrder] = useState<boolean | null>(null);
   const [rankings, setRankings] = useState<number[]>([]);
   const [currentTurn, setCurrentTurn] = useState<number>(0);
-  const [hintUsed, setHintUsed] = useState<boolean[]>([]);
 
   // Supabaseからカード情報を取得
   const fetchCards = async () => {
@@ -34,32 +26,55 @@ const Home = () => {
     if (error) {
       console.error("カード情報の取得に失敗しました:", error);
     } else if (data && data.length > 0) {
-      const randomCards = getRandomCards(data, 50);
-      setCards(randomCards);
+      const randomCards = getRandomCards(data, 6);
+      setDeck(randomCards);
     } else {
       console.log("カード情報が存在しません。");
-      setCards([]);
+      setDeck([]);
     }
   };
 
-  // ランダムに50個抽出
   const getRandomCards = (cards: CardProps[], count: number) => {
     const shuffled = [...cards].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   };
 
-  // プレイヤーと場（Board）へのカード配布処理
+  // プレイヤーと場へのカード配布処理
   const onDistribute = (playerCards: CardProps[][], tableCard: CardProps) => {
     setPlayerCards(playerCards);
     setTableCards([tableCard]);
+  };
 
-    // ヒント使用の状態をリセット
-    setHintUsed(new Array(playerCount).fill(false));
+  // 山札からカードを引く処理
+  const drawCard = () => {
+    if (deck.length === 0) return null;
+    const newDeck = [...deck];
+    const drawnCard = newDeck.pop();
+    setDeck(newDeck);
+    return drawnCard;
+  };
+
+  // プレイヤーのランキングを更新
+  const updateRankings = () => {
+    const completedPlayers = playerCards
+      .map((cards, index) => (cards.length === 0 ? index : null))
+      .filter((index) => index !== null);
+
+    if (
+      completedPlayers.length > 0 &&
+      !rankings.includes(completedPlayers[0])
+    ) {
+      setRankings([...rankings, ...completedPlayers]);
+    }
   };
 
   useEffect(() => {
     fetchCards();
   }, []);
+
+  useEffect(() => {
+    updateRankings();
+  }, [playerCards]);
 
   return (
     <div
@@ -88,8 +103,9 @@ const Home = () => {
         setPlayerCount={setPlayerCount}
       />
       <DistributeButton
-        cards={cards}
-        setCards={setCards}
+        deck={deck}
+        setDeck={setDeck}
+        fetchCards={fetchCards}
         playerCount={playerCount}
         onDistribute={onDistribute}
         setIsCorrectOrder={setIsCorrectOrder}
@@ -98,7 +114,8 @@ const Home = () => {
       />
       <DndProvider backend={HTML5Backend}>
         <Board
-          cards={cards}
+          deck={deck}
+          drawCard={drawCard}
           tableCards={tableCards}
           playerCards={playerCards}
           playerCount={playerCount}
@@ -114,12 +131,7 @@ const Home = () => {
         <div>
           <h3>プレイヤー{currentTurn + 1}のターン</h3>
         </div>
-        <PlayerHand
-          playerCards={playerCards}
-          currentTurn={currentTurn}
-          hintUsed={hintUsed}
-          setHintUsed={setHintUsed}
-        />
+        <PlayerHand playerCards={playerCards} currentTurn={currentTurn} />
       </DndProvider>
     </div>
   );

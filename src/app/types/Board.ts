@@ -2,7 +2,8 @@ import { CardProps } from "@/app/types/Card";
 
 /**
  * Board情報の型
- * - cards: 1ゲーム内で使用する山札および手札
+ * - deck: 1ゲーム内で使用する山札
+ * - drawCard: 山札からカードをドローする関数
  * - tableCards: 場に出たカード
  * - playerCount: 参加人数
  * - playerCards: プレイヤーのカードの配列
@@ -16,7 +17,8 @@ import { CardProps } from "@/app/types/Card";
  * - setCurrentTurn: プレイヤーターンの更新関数
  */
 export type BoardProps = {
-  cards: CardProps[];
+  deck: CardProps[];
+  drawCard: () => CardProps | null | undefined;
   tableCards: CardProps[];
   playerCount: number;
   playerCards: CardProps[][];
