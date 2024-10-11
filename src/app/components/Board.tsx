@@ -2,7 +2,6 @@ import { useRef, useState, useEffect } from "react";
 import { css } from "@emotion/react";
 import { useDrop } from "react-dnd";
 import { Card } from "@/app/components/Card";
-import { CardProps } from "@/app/types/Card";
 import { BoardProps } from "@/app/types/Board";
 
 // ----------------------------------------------------------------------------------------------------
@@ -20,10 +19,14 @@ export const Board = (props: BoardProps) => {
   const [canCheckResult, setCanCheckResult] = useState<boolean>(false);
   const [showYears, setShowYears] = useState<{ [key: number]: boolean }>({});
   const [lastDroppedCard, setLastDroppedCard] = useState<{
-    card: CardProps;
+    card: any;
     playerIndex: number;
+    originalIndex: number;
   } | null>(null);
   const [canReturnCard, setCanReturnCard] = useState<boolean>(false);
+  const [isGameOver, setIsGameOver] = useState<boolean>(false); // ゲーム終了フラグ
+  const [finalRankings, setFinalRankings] = useState<number[]>([]); // ゲーム終了時のランキング
+  const [lockedCardIds, setLockedCardIds] = useState<number[]>([]); // 移動できないカードのIDリスト
 
   // Board の状態をリセット
   useEffect(() => {
@@ -31,6 +34,7 @@ export const Board = (props: BoardProps) => {
       setShowYears({});
       setCanCheckResult(false);
       setCanReturnCard(false);
+      setLockedCardIds([]); // 結果確認後にカードをロックするリストをリセット
     }
   }, [props.isCorrectOrder]);
 
@@ -40,25 +44,61 @@ export const Board = (props: BoardProps) => {
       item: { id: number; isTableCard: boolean; playerIndex: number },
       monitor
     ) => {
+      // 最初に場に出た1枚のカードは移動できない
+      if (props.tableCards.length === 1 && item.isTableCard) {
+        console.log("最初に出たカードは移動できません");
+        return;
+      }
+
+      // 移動不可のカード（ロックされたカード）は移動できない
+      if (lockedCardIds.includes(item.id)) {
+        console.log("このカードは結果確認後、移動できません");
+        return;
+      }
+
       const cardToMove = item.isTableCard
         ? props.tableCards.find((card) => card.id === item.id)
-        : props.playerCards.flat().find((card) => card.id === item.id);
+        : props.playerCards[item.playerIndex]?.find(
+            (card) => card.id === item.id
+          );
 
       if (cardToMove) {
-        // ドロップされたカードの情報を保存
         setLastDroppedCardId(cardToMove.id);
-        setLastDroppedCard({ card: cardToMove, playerIndex: item.playerIndex });
 
-        // プレイヤーの手札を更新
-        const updatedPlayerCards = item.isTableCard
-          ? props.playerCards
-          : props.playerCards.map((hand) =>
-              hand.filter((card) => card.id !== item.id)
-            );
+        if (item.isTableCard) {
+          setLastDroppedCard({
+            card: cardToMove,
+            playerIndex: -1, // 場のカードなので playerIndex は -1
+            originalIndex: props.tableCards.findIndex(
+              (card) => card.id === item.id
+            ),
+          });
+        } else {
+          const originalIndex = props.playerCards[item.playerIndex]?.findIndex(
+            (card) => card.id === item.id
+          );
 
-        props.setPlayerCards(updatedPlayerCards);
+          if (originalIndex === undefined || originalIndex < 0) {
+            console.error("Original index not found for card:", cardToMove);
+            return;
+          }
 
-        // ドロップ位置の特定とカードの挿入
+          setLastDroppedCard({
+            card: cardToMove,
+            playerIndex: item.playerIndex,
+            originalIndex: originalIndex, // 元のインデックスを保持
+          });
+
+          // プレイヤーの手札からカードを削除
+          const updatedPlayerCards = props.playerCards.map((hand, index) =>
+            index === item.playerIndex
+              ? hand.filter((card) => card.id !== item.id)
+              : hand
+          );
+          props.setPlayerCards(updatedPlayerCards);
+        }
+
+        // カードの位置調整
         const clientOffset = monitor.getClientOffset();
         const boardRect = dropRef.current?.getBoundingClientRect();
 
@@ -66,7 +106,6 @@ export const Board = (props: BoardProps) => {
           const dropX = clientOffset.x - boardRect.left;
           let insertIndex = props.tableCards.length;
 
-          // カードの挿入位置を計算
           for (let index = 0; index < props.tableCards.length; index++) {
             const cardElement = document.getElementById(
               `table-card-${props.tableCards[index].id}`
@@ -80,14 +119,12 @@ export const Board = (props: BoardProps) => {
             }
           }
 
-          // カードを場の新しい位置に挿入
           const newTableCards = props.tableCards.filter(
             (card) => card.id !== item.id
           );
           newTableCards.splice(insertIndex, 0, cardToMove);
           props.setTableCards(newTableCards);
 
-          // カードがドロップされたら結果確認と手札に戻すボタンをアクティブに
           setCanCheckResult(true);
           setCanReturnCard(true);
         }
@@ -101,7 +138,6 @@ export const Board = (props: BoardProps) => {
   drop(dropRef);
 
   const checkOrder = () => {
-    // 年代が昇順であるかをチェック
     const isSorted = props.tableCards.every(
       (card, index, arr) => index === 0 || card.year >= arr[index - 1].year
     );
@@ -109,31 +145,72 @@ export const Board = (props: BoardProps) => {
     if (isSorted) {
       props.setIsCorrectOrder(true);
 
-      // 正解で全てのプレイヤーの手札がなくなった場合、ゲーム終了
+      // プレイヤーの手札が空になったプレイヤーをランキングに追加
+      const completedPlayers = props.playerCards
+        .map((hand, index) =>
+          hand.length === 0 && !finalRankings.includes(index) ? index : null
+        )
+        .filter((index) => index !== null) as number[];
+
+      if (completedPlayers.length > 0) {
+        setFinalRankings((prevRankings) => [
+          ...prevRankings,
+          ...completedPlayers,
+        ]);
+      }
+
+      // 全てのプレイヤーの手札がなくなった場合、ゲーム終了
       if (props.playerCards.every((hand) => hand.length === 0)) {
         console.log("ゲーム終了: 全プレイヤーの手札がなくなりました");
+        setIsGameOver(true);
         return;
       }
     } else {
       props.setIsCorrectOrder(false);
 
-      // 不正解時の処理：場のカードを年代順に並べ直し、ドロップしたカードの年代を表示
-      const sortedCards = [...props.tableCards].sort((a, b) => a.year - b.year);
-      props.setTableCards(sortedCards);
+      // 山札が空かどうか確認
+      if (props.deck.length === 0) {
+        console.log("ゲーム終了: 山札が切れました");
+        setIsGameOver(true);
 
-      // ドロップしたカードのみ year を表示
-      if (lastDroppedCardId !== null) {
-        setShowYears((prev) => ({ ...prev, [lastDroppedCardId]: true }));
-      }
+        const playerHandSizes = props.playerCards.map((hand, index) => ({
+          playerIndex: index,
+          handSize: hand.length,
+        }));
 
-      // 山札からカードを引く処理
-      const newCard = props.drawCard();
-      if (newCard !== undefined && newCard !== null) {
-        const updatedPlayerCards = [...props.playerCards];
-        updatedPlayerCards[props.currentTurn].push(newCard);
-        props.setPlayerCards(updatedPlayerCards);
+        const sortedPlayers = playerHandSizes.sort(
+          (a, b) => a.handSize - b.handSize
+        );
+
+        const rankings = sortedPlayers.map((player) => player.playerIndex);
+        setFinalRankings(rankings); // ランキングを保存
+
+        return;
+      } else {
+        // 不正解時の処理：場のカードを年代順に並べ直し、ドロップしたカードの年代を表示
+        const sortedCards = [...props.tableCards].sort(
+          (a, b) => a.year - b.year
+        );
+        props.setTableCards(sortedCards);
+
+        // ドロップしたカードのみ year を表示
+        if (lastDroppedCardId !== null) {
+          setShowYears((prev) => ({ ...prev, [lastDroppedCardId]: true }));
+        }
+
+        // 山札からカードを引く処理
+        const newCard = props.drawCard();
+        if (newCard !== undefined && newCard !== null) {
+          const updatedPlayerCards = [...props.playerCards];
+          updatedPlayerCards[props.currentTurn].push(newCard);
+          props.setPlayerCards(updatedPlayerCards);
+        }
       }
     }
+
+    // 結果確認後に場のカードをロック（移動不可にする）
+    const lockedIds = props.tableCards.map((card) => card.id);
+    setLockedCardIds(lockedIds); // 確認後の場のカードをロック
 
     // 次のターンのプレイヤーを選ぶ
     props.setCurrentTurn((prevTurn) => {
@@ -146,40 +223,54 @@ export const Board = (props: BoardProps) => {
       return nextTurn;
     });
 
-    // 結果確認後にはドロップしたカードは動かせないようにし、手札に戻すボタンを非アクティブにする
     setCanCheckResult(false);
     setCanReturnCard(false);
   };
 
-  // 手札に戻す処理
   const returnCardToHand = () => {
     if (lastDroppedCard) {
-      const { card, playerIndex } = lastDroppedCard;
+      const { card, playerIndex, originalIndex } = lastDroppedCard;
 
-      // プレイヤーインデックスの確認
-      if (
-        playerIndex >= 0 &&
-        playerIndex < props.playerCards.length &&
-        props.playerCards[playerIndex]
-      ) {
-        // 手札に戻す
+      if (playerIndex === -1) {
+        const currentTurnPlayer = props.currentTurn;
+
+        if (currentTurnPlayer >= 0 && currentTurnPlayer < props.playerCount) {
+          const updatedPlayerCards = [...props.playerCards];
+          updatedPlayerCards[currentTurnPlayer].push(card);
+          props.setPlayerCards(updatedPlayerCards);
+
+          const updatedTableCards = props.tableCards.filter(
+            (c) => c.id !== card.id
+          );
+          props.setTableCards(updatedTableCards);
+
+          setLastDroppedCard(null);
+          setLastDroppedCardId(null);
+          setCanCheckResult(false);
+          setCanReturnCard(false);
+        } else {
+          console.error("Invalid currentTurnPlayer index:", currentTurnPlayer);
+        }
+      } else if (playerIndex >= 0 && originalIndex >= 0) {
         const updatedPlayerCards = [...props.playerCards];
-        updatedPlayerCards[playerIndex].push(card);
+        updatedPlayerCards[playerIndex].splice(originalIndex, 0, card);
         props.setPlayerCards(updatedPlayerCards);
 
-        // 場から削除
         const updatedTableCards = props.tableCards.filter(
           (c) => c.id !== card.id
         );
         props.setTableCards(updatedTableCards);
 
-        // 状態をリセット
         setLastDroppedCard(null);
         setLastDroppedCardId(null);
         setCanCheckResult(false);
-        setCanReturnCard(false); // 手札に戻したらボタンを非アクティブにする
+        setCanReturnCard(false);
       } else {
-        console.error("Invalid player index:", playerIndex);
+        console.error(
+          "Invalid player or card index:",
+          playerIndex,
+          originalIndex
+        );
       }
     }
   };
@@ -195,7 +286,48 @@ export const Board = (props: BoardProps) => {
         background-color: ${isOver ? "lightblue" : "transparent"};
       `}
     >
-      <h2>場に出たカード</h2>
+      {/* ゲーム終了メッセージ */}
+      {isGameOver && (
+        <div
+          css={css`
+            color: red;
+            font-weight: bold;
+          `}
+        >
+          <h2>ゲーム終了: 山札が切れました</h2>
+          <ul>
+            {finalRankings.map((playerIndex, rank) => (
+              <li key={playerIndex}>
+                {rank + 1}位: プレイヤー {playerIndex + 1}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* カードドローの文言を非表示にする */}
+      {!isGameOver && (
+        <div>
+          {props.isCorrectOrder !== null && (
+            <div>
+              {props.isCorrectOrder ? (
+                <p>正解!</p>
+              ) : (
+                <p
+                  css={css`
+                    color: red;
+                    font-weight: bold;
+                  `}
+                >
+                  不正解!
+                  {props.deck.length > 0 && <br />}
+                  {props.deck.length > 0 && "1枚ドロー!"}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 手札に戻すボタン */}
       <button onClick={returnCardToHand} disabled={!canReturnCard}>
@@ -231,8 +363,7 @@ export const Board = (props: BoardProps) => {
                   isTableCard={true}
                   playerIndex={-1}
                   showYear={!!showYears[card.id]}
-                  // ドラッグ可能な条件を簡素化
-                  isDraggable={lastDroppedCardId === card.id}
+                  isDraggable={!lockedCardIds.includes(card.id)} // ロックされたカードはドラッグ不可
                 />
               </div>
             ))}

@@ -11,6 +11,13 @@ import { PlayerHand } from "@/app/components/PlayerHand";
 import { CardProps } from "@/app/types/Card";
 import { PlayerCountPicker } from "@/app/components/PlayerCountPicker";
 
+// ----------------------------------------------------------------------------------------------------
+// Reactコンポーネント
+// ----------------------------------------------------------------------------------------------------
+
+/**
+ * タイムラインゲーム画面
+ */
 const Home = () => {
   const [deck, setDeck] = useState<CardProps[]>([]);
   const [playerCards, setPlayerCards] = useState<CardProps[][]>([]);
@@ -85,19 +92,6 @@ const Home = () => {
         padding: 20px;
       `}
     >
-      {/* 順位表示 */}
-      {rankings.length > 0 && (
-        <div>
-          <h2>ランキング</h2>
-          <ul>
-            {rankings.map((playerIndex, rank) => (
-              <li key={playerIndex}>
-                {rank + 1}位: プレイヤー {playerIndex + 1}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
       <PlayerCountPicker
         playerCount={playerCount}
         setPlayerCount={setPlayerCount}
@@ -128,9 +122,6 @@ const Home = () => {
           setRankings={setRankings}
           setCurrentTurn={setCurrentTurn}
         />
-        <div>
-          <h3>プレイヤー{currentTurn + 1}のターン</h3>
-        </div>
         <PlayerHand playerCards={playerCards} currentTurn={currentTurn} />
       </DndProvider>
     </div>
