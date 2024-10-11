@@ -2,6 +2,7 @@ import { CardProps } from "@/app/types/Card";
 
 /**
  * 配布カード情報の型
+ * - originalDeck: ページロード時にSupabaseから取得して抽出した山札
  * - deck: 1ゲーム内で使用する山札
  * - fetchCards: Supabaseからカード情報を取得する非同期関数
  * - playerCount: 参加人数
@@ -12,6 +13,7 @@ import { CardProps } from "@/app/types/Card";
  * - setRankings: プレイヤー順位の更新関数
  */
 export type DistributeCardsProps = {
+  originalDeck: CardProps[];
   deck: CardProps[];
   fetchCards: () => Promise<void>;
   playerCount: number;

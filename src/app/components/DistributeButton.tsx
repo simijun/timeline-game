@@ -10,16 +10,20 @@ import { DistributeCardsProps } from "@/app/types/DistributeButton";
  */
 export const DistributeButton = (props: DistributeCardsProps) => {
   const distributeCards = () => {
-    // 取得後のデッキが存在するか確認
-    if (props.deck.length === 0) {
-      console.error("デッキにカードが存在しません。");
+    // プレイヤーに配布するために必要な枚数を計算
+    const requiredCards = props.playerCount * 2 + 1; // 1人2枚＋場に1枚
+
+    // デッキが足りるかチェック
+    if (props.originalDeck.length < requiredCards) {
+      console.error("デッキの枚数が足りません。");
       return;
     }
 
-    // デッキをシャッフル
-    const shuffledDeck = [...props.deck].sort(() => 0.5 - Math.random());
+    // originalDeckから新しいコピー配列を作成
+    const shuffledDeck = [...props.originalDeck].sort(
+      () => 0.5 - Math.random()
+    );
 
-    // プレイヤーごとの手札を管理するための二次元配列を用意
     const playerCards: CardProps[][] = Array.from(
       { length: props.playerCount },
       () => []
@@ -31,19 +35,21 @@ export const DistributeButton = (props: DistributeCardsProps) => {
         const cardToDistribute = shuffledDeck.pop(); // デッキからカードを配布
         if (cardToDistribute) {
           playerCards[j].push(cardToDistribute);
+        } else {
+          console.error("デッキに十分なカードがありません。");
+          return;
         }
       }
     }
 
-    // 山札から1枚を場に出す
-    const tableCard = shuffledDeck.pop(); // デッキから場に出すカードを引く
-
+    // 場に出すカード
+    const tableCard = shuffledDeck.pop();
     if (tableCard) {
-      props.onDistribute(playerCards, tableCard); // プレイヤーの手札と場に出すカードを設定
-      props.setDeck(shuffledDeck); // 残りのデッキを更新
-      props.setCurrentTurn(0); // プレイヤー1から開始
-      props.setIsCorrectOrder(null); // 正誤判定をリセット
-      props.setRankings([]); // 順位をリセット
+      props.onDistribute(playerCards, tableCard);
+      props.setDeck(shuffledDeck); // ゲーム用のデッキをセット
+      props.setCurrentTurn(0);
+      props.setIsCorrectOrder(null);
+      props.setRankings([]);
     } else {
       console.error("デッキに十分なカードがありません。");
     }

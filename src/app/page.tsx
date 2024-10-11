@@ -19,6 +19,7 @@ import { PlayerCountPicker } from "@/app/components/PlayerCountPicker";
  * タイムラインゲーム画面
  */
 const Home = () => {
+  const [originalDeck, setOriginalDeck] = useState<CardProps[]>([]);
   const [deck, setDeck] = useState<CardProps[]>([]);
   const [playerCards, setPlayerCards] = useState<CardProps[][]>([]);
   const [tableCards, setTableCards] = useState<CardProps[]>([]);
@@ -33,8 +34,9 @@ const Home = () => {
     if (error) {
       console.error("カード情報の取得に失敗しました:", error);
     } else if (data && data.length > 0) {
+      setOriginalDeck(data); // ここで元のデッキを保持
       const randomCards = getRandomCards(data, 6);
-      setDeck(randomCards);
+      setDeck(randomCards); // ここでは最初のゲーム用のデッキをセット
     } else {
       console.log("カード情報が存在しません。");
       setDeck([]);
@@ -98,6 +100,7 @@ const Home = () => {
       />
       <DistributeButton
         deck={deck}
+        originalDeck={originalDeck}
         setDeck={setDeck}
         fetchCards={fetchCards}
         playerCount={playerCount}
