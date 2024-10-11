@@ -145,21 +145,7 @@ export const Board = (props: BoardProps) => {
     if (isSorted) {
       props.setIsCorrectOrder(true);
 
-      // プレイヤーの手札が空になったプレイヤーをランキングに追加
-      const completedPlayers = props.playerCards
-        .map((hand, index) =>
-          hand.length === 0 && !finalRankings.includes(index) ? index : null
-        )
-        .filter((index) => index !== null) as number[];
-
-      if (completedPlayers.length > 0) {
-        setFinalRankings((prevRankings) => [
-          ...prevRankings,
-          ...completedPlayers,
-        ]);
-      }
-
-      // 全てのプレイヤーの手札がなくなった場合、ゲーム終了
+      // 正解の場合、プレイヤーの手札が空になったらゲームを終了
       if (props.playerCards.every((hand) => hand.length === 0)) {
         console.log("ゲーム終了: 全プレイヤーの手札がなくなりました");
         setIsGameOver(true);
@@ -168,37 +154,25 @@ export const Board = (props: BoardProps) => {
     } else {
       props.setIsCorrectOrder(false);
 
-      // 山札が空かどうか確認
+      // プレイヤーが間違えた場合の処理
       if (props.deck.length === 0) {
+        // デッキが0の場合にゲーム終了を判定
         console.log("ゲーム終了: 山札が切れました");
         setIsGameOver(true);
-
-        const playerHandSizes = props.playerCards.map((hand, index) => ({
-          playerIndex: index,
-          handSize: hand.length,
-        }));
-
-        const sortedPlayers = playerHandSizes.sort(
-          (a, b) => a.handSize - b.handSize
-        );
-
-        const rankings = sortedPlayers.map((player) => player.playerIndex);
-        setFinalRankings(rankings); // ランキングを保存
-
         return;
       } else {
-        // 不正解時の処理：場のカードを年代順に並べ直し、ドロップしたカードの年代を表示
+        // デッキが残っている場合は場のカードを並べ替え、ドロー
         const sortedCards = [...props.tableCards].sort(
           (a, b) => a.year - b.year
         );
         props.setTableCards(sortedCards);
 
-        // ドロップしたカードのみ year を表示
+        // ドロップしたカードの年を表示
         if (lastDroppedCardId !== null) {
           setShowYears((prev) => ({ ...prev, [lastDroppedCardId]: true }));
         }
 
-        // 山札からカードを引く処理
+        // 山札からカードを引く
         const newCard = props.drawCard();
         if (newCard !== undefined && newCard !== null) {
           const updatedPlayerCards = [...props.playerCards];
@@ -208,15 +182,13 @@ export const Board = (props: BoardProps) => {
       }
     }
 
-    // 結果確認後に場のカードをロック（移動不可にする）
+    // 結果確認後に場のカードをロックする
     const lockedIds = props.tableCards.map((card) => card.id);
-    setLockedCardIds(lockedIds); // 確認後の場のカードをロック
+    setLockedCardIds(lockedIds);
 
-    // 次のターンのプレイヤーを選ぶ
+    // 次のターンのプレイヤーに移行
     props.setCurrentTurn((prevTurn) => {
       let nextTurn = (prevTurn + 1) % props.playerCount;
-
-      // 手札が空のプレイヤーはスキップ
       while (props.playerCards[nextTurn].length === 0) {
         nextTurn = (nextTurn + 1) % props.playerCount;
       }

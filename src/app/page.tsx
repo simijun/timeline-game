@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { css } from "@emotion/react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { getRandomCards } from "@/app/utils/functions";
 import { DistributeButton } from "@/app/components/DistributeButton";
 import { Board } from "@/app/components/Board";
 import { PlayerHand } from "@/app/components/PlayerHand";
@@ -34,6 +35,7 @@ const Home = () => {
     if (error) {
       console.error("カード情報の取得に失敗しました:", error);
     } else if (data && data.length > 0) {
+      console.log("Supabase から取得したカード枚数:", data.length);
       setOriginalDeck(data); // ここで元のデッキを保持
       const randomCards = getRandomCards(data, 6);
       setDeck(randomCards); // ここでは最初のゲーム用のデッキをセット
@@ -41,11 +43,6 @@ const Home = () => {
       console.log("カード情報が存在しません。");
       setDeck([]);
     }
-  };
-
-  const getRandomCards = (cards: CardProps[], count: number) => {
-    const shuffled = [...cards].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
   };
 
   // プレイヤーと場へのカード配布処理
@@ -56,10 +53,13 @@ const Home = () => {
 
   // 山札からカードを引く処理
   const drawCard = () => {
-    if (deck.length === 0) return null;
+    if (deck.length === 0) {
+      console.error("デッキにカードが残っていません。");
+      return null;
+    }
     const newDeck = [...deck];
-    const drawnCard = newDeck.pop();
-    setDeck(newDeck);
+    const drawnCard = newDeck.pop(); // デッキからカードを1枚引く
+    setDeck(newDeck); // 残りのデッキをセット
     return drawnCard;
   };
 
