@@ -142,8 +142,8 @@ export const Board = (props: BoardProps) => {
                 card={card}
                 isTableCard={true}
                 playerIndex={-1}
-                showYear={!!props.showYears[card.id]}
-                isDraggable={!props.lockedCardIds.includes(card.id)}
+                showYear={!!props.showYears[card.id]} // 間違えたカードの年代を表示
+                isDraggable={!props.lockedCardIds.includes(card.id)} // ロックされたカードはドラッグ不可
               />
             </div>
           ))}

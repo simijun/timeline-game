@@ -94,37 +94,47 @@ const Home = () => {
 
     if (isSorted) {
       setIsCorrectOrder(true);
+
+      // 正解の場合、プレイヤーの手札が空になったらゲームを終了
       if (playerCards.every((hand) => hand.length === 0)) {
+        console.log("ゲーム終了: 全プレイヤーの手札がなくなりました");
         setIsGameOver(true);
         return;
       }
     } else {
       setIsCorrectOrder(false);
-      const sortedCards = [...tableCards].sort((a, b) => a.year - b.year);
-      setTableCards(sortedCards);
 
-      const incorrectCards = sortedCards.filter(
-        (card, index) => index > 0 && card.year < sortedCards[index - 1].year
-      );
+      // プレイヤーが間違えた場合の処理
+      if (deck.length === 0) {
+        // デッキが0の場合にゲーム終了を判定
+        console.log("ゲーム終了: 山札が切れました");
+        setIsGameOver(true);
+        return;
+      } else {
+        // デッキが残っている場合は場のカードを並べ替え、ドロー
+        const sortedCards = [...tableCards].sort((a, b) => a.year - b.year);
+        setTableCards(sortedCards);
 
-      setShowYears((prev) => {
-        const newShowYears = { ...prev };
-        incorrectCards.forEach((card) => {
-          newShowYears[card.id] = true;
-        });
-        return newShowYears;
-      });
+        // ドロップしたカードの年を表示
+        if (lastDroppedCardId !== null) {
+          setShowYears((prev) => ({ ...prev, [lastDroppedCardId]: true }));
+        }
 
-      const newCard = drawCard();
-      if (newCard) {
-        const updatedPlayerCards = [...playerCards];
-        updatedPlayerCards[currentTurn].push(newCard);
-        setPlayerCards(updatedPlayerCards);
+        // 山札からカードを引く
+        const newCard = drawCard();
+        if (newCard !== undefined && newCard !== null) {
+          const updatedPlayerCards = [...playerCards];
+          updatedPlayerCards[currentTurn].push(newCard);
+          setPlayerCards(updatedPlayerCards);
+        }
       }
     }
 
+    // 結果確認後に場のカードをロックする
     const lockedIds = tableCards.map((card) => card.id);
     setLockedCardIds(lockedIds);
+
+    // 次のターンのプレイヤーに移行
     setCurrentTurn((prevTurn) => {
       let nextTurn = (prevTurn + 1) % playerCount;
       while (playerCards[nextTurn].length === 0) {

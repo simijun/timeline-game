@@ -20,11 +20,11 @@ export const ResultMessage = (props: ResultMessageProps) => {
         <h2>ゲーム終了: 山札が切れました</h2>
         <ul>
           {props.rankings.map((playerIndex, rank) => (
-            <li key={playerIndex}>
+            <li key={`player-${playerIndex}`}>
               {rank + 1}位: プレイヤー {playerIndex + 1}
             </li>
           ))}
-        </ul>
+        </ul>{" "}
       </div>
     );
   }
