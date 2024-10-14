@@ -6,6 +6,7 @@ import { css } from "@emotion/react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getRandomCards } from "@/app/utils/functions";
+import { ResultMessage } from "@/app/components/ResultMessage";
 import { DistributeButton } from "@/app/components/DistributeButton";
 import { Board } from "@/app/components/Board";
 import { PlayerHand } from "@/app/components/PlayerHand";
@@ -28,6 +29,19 @@ const Home = () => {
   const [isCorrectOrder, setIsCorrectOrder] = useState<boolean | null>(null);
   const [rankings, setRankings] = useState<number[]>([]);
   const [currentTurn, setCurrentTurn] = useState<number>(0);
+  const [lastDroppedCardId, setLastDroppedCardId] = useState<number | null>(
+    null
+  );
+  const [lastDroppedCard, setLastDroppedCard] = useState<{
+    card: any;
+    playerIndex: number;
+    originalIndex: number;
+  } | null>(null);
+  const [showYears, setShowYears] = useState<{ [key: number]: boolean }>({});
+  const [lockedCardIds, setLockedCardIds] = useState<number[]>([]);
+  const [canCheckResult, setCanCheckResult] = useState<boolean>(false);
+  const [canReturnCard, setCanReturnCard] = useState<boolean>(false);
+  const [isGameOver, setIsGameOver] = useState<boolean>(false);
 
   // Supabaseからカード情報を取得
   const fetchCards = async () => {
@@ -35,12 +49,10 @@ const Home = () => {
     if (error) {
       console.error("カード情報の取得に失敗しました:", error);
     } else if (data && data.length > 0) {
-      console.log("Supabase から取得したカード枚数:", data.length);
-      setOriginalDeck(data); // ここで元のデッキを保持
-      const randomCards = getRandomCards(data, 6);
-      setDeck(randomCards); // ここでは最初のゲーム用のデッキをセット
+      setOriginalDeck(data);
+      const randomCards = getRandomCards(data, 50);
+      setDeck(randomCards);
     } else {
-      console.log("カード情報が存在しません。");
       setDeck([]);
     }
   };
@@ -53,13 +65,10 @@ const Home = () => {
 
   // 山札からカードを引く処理
   const drawCard = () => {
-    if (deck.length === 0) {
-      console.error("デッキにカードが残っていません。");
-      return null;
-    }
+    if (deck.length === 0) return null;
     const newDeck = [...deck];
-    const drawnCard = newDeck.pop(); // デッキからカードを1枚引く
-    setDeck(newDeck); // 残りのデッキをセット
+    const drawnCard = newDeck.pop();
+    setDeck(newDeck);
     return drawnCard;
   };
 
@@ -74,6 +83,93 @@ const Home = () => {
       !rankings.includes(completedPlayers[0])
     ) {
       setRankings([...rankings, ...completedPlayers]);
+    }
+  };
+
+  // 場に出たカードの並び順確認
+  const checkOrder = () => {
+    const isSorted = tableCards.every(
+      (card, index, arr) => index === 0 || card.year >= arr[index - 1].year
+    );
+
+    if (isSorted) {
+      setIsCorrectOrder(true);
+      if (playerCards.every((hand) => hand.length === 0)) {
+        setIsGameOver(true);
+        return;
+      }
+    } else {
+      setIsCorrectOrder(false);
+      const sortedCards = [...tableCards].sort((a, b) => a.year - b.year);
+      setTableCards(sortedCards);
+
+      const incorrectCards = sortedCards.filter(
+        (card, index) => index > 0 && card.year < sortedCards[index - 1].year
+      );
+
+      setShowYears((prev) => {
+        const newShowYears = { ...prev };
+        incorrectCards.forEach((card) => {
+          newShowYears[card.id] = true;
+        });
+        return newShowYears;
+      });
+
+      const newCard = drawCard();
+      if (newCard) {
+        const updatedPlayerCards = [...playerCards];
+        updatedPlayerCards[currentTurn].push(newCard);
+        setPlayerCards(updatedPlayerCards);
+      }
+    }
+
+    const lockedIds = tableCards.map((card) => card.id);
+    setLockedCardIds(lockedIds);
+    setCurrentTurn((prevTurn) => {
+      let nextTurn = (prevTurn + 1) % playerCount;
+      while (playerCards[nextTurn].length === 0) {
+        nextTurn = (nextTurn + 1) % playerCount;
+      }
+      return nextTurn;
+    });
+
+    setCanCheckResult(false);
+    setCanReturnCard(false);
+  };
+
+  const returnCardToHand = () => {
+    if (lastDroppedCard) {
+      const { card, playerIndex, originalIndex } = lastDroppedCard;
+
+      // プレイヤーの手札に戻す処理
+      if (playerIndex === -1) {
+        const currentTurnPlayer = currentTurn;
+        if (currentTurnPlayer >= 0 && currentTurnPlayer < playerCount) {
+          const updatedPlayerCards = [...playerCards];
+          updatedPlayerCards[currentTurnPlayer].push(card);
+          setPlayerCards(updatedPlayerCards);
+
+          const updatedTableCards = tableCards.filter((c) => c.id !== card.id);
+          setTableCards(updatedTableCards);
+
+          setLastDroppedCard(null);
+          setLastDroppedCardId(null);
+          setCanCheckResult(false);
+          setCanReturnCard(false);
+        }
+      } else if (playerIndex >= 0 && originalIndex >= 0) {
+        const updatedPlayerCards = [...playerCards];
+        updatedPlayerCards[playerIndex].splice(originalIndex, 0, card);
+        setPlayerCards(updatedPlayerCards);
+
+        const updatedTableCards = tableCards.filter((c) => c.id !== card.id);
+        setTableCards(updatedTableCards);
+
+        setLastDroppedCard(null);
+        setLastDroppedCardId(null);
+        setCanCheckResult(false);
+        setCanReturnCard(false);
+      }
     }
   };
 
@@ -94,6 +190,12 @@ const Home = () => {
         padding: 20px;
       `}
     >
+      <ResultMessage
+        isGameOver={isGameOver}
+        isCorrectOrder={isCorrectOrder}
+        deckLength={deck.length}
+        rankings={rankings}
+      />
       <PlayerCountPicker
         playerCount={playerCount}
         setPlayerCount={setPlayerCount}
@@ -109,21 +211,29 @@ const Home = () => {
         setCurrentTurn={setCurrentTurn}
         setRankings={setRankings}
       />
+
+      <button onClick={returnCardToHand} disabled={!canReturnCard}>
+        手札に戻す
+      </button>
+      <button onClick={checkOrder} disabled={!canCheckResult}>
+        結果を確認
+      </button>
+
       <DndProvider backend={HTML5Backend}>
         <Board
-          deck={deck}
-          drawCard={drawCard}
           tableCards={tableCards}
           playerCards={playerCards}
           playerCount={playerCount}
-          isCorrectOrder={isCorrectOrder}
-          rankings={rankings}
           currentTurn={currentTurn}
           setTableCards={setTableCards}
           setPlayerCards={setPlayerCards}
-          setIsCorrectOrder={setIsCorrectOrder}
-          setRankings={setRankings}
-          setCurrentTurn={setCurrentTurn}
+          setLastDroppedCardId={setLastDroppedCardId}
+          setLastDroppedCard={setLastDroppedCard}
+          setCanCheckResult={setCanCheckResult}
+          setCanReturnCard={setCanReturnCard}
+          isCorrectOrder={isCorrectOrder}
+          lockedCardIds={lockedCardIds}
+          showYears={showYears}
         />
         <PlayerHand playerCards={playerCards} currentTurn={currentTurn} />
       </DndProvider>

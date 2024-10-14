@@ -18,7 +18,7 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     }
 
     // originalDeck からランダムに6枚選んでデッキを生成
-    let shuffledDeck = getRandomCards(props.originalDeck, 6);
+    let shuffledDeck = getRandomCards(props.originalDeck, 50);
     console.log(
       "ゲームに使用するシャッフル後のデッキ枚数:",
       shuffledDeck.length
