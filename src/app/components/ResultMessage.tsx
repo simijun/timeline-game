@@ -17,7 +17,7 @@ export const ResultMessage = (props: ResultMessageProps) => {
           font-weight: bold;
         `}
       >
-        <h2>ゲーム終了: 山札が切れました</h2>
+        <h2>ゲームセット！</h2>
         <ul>
           {props.rankings.map((playerIndex, rank) => (
             <li key={`player-${playerIndex}`}>

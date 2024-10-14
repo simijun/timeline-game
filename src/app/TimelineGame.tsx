@@ -20,7 +20,7 @@ import { PlayerCountPicker } from "@/app/components/PlayerCountPicker";
 /**
  * タイムラインゲーム画面
  */
-const Home = () => {
+const TimeLineGame = () => {
   const [originalDeck, setOriginalDeck] = useState<CardProps[]>([]);
   const [deck, setDeck] = useState<CardProps[]>([]);
   const [playerCards, setPlayerCards] = useState<CardProps[][]>([]);
@@ -37,9 +37,9 @@ const Home = () => {
     playerIndex: number;
     originalIndex: number;
   } | null>(null);
-  const [showYears, setShowYears] = useState<{ [key: number]: boolean }>({});
   const [lockedCardIds, setLockedCardIds] = useState<number[]>([]);
   const [canCheckResult, setCanCheckResult] = useState<boolean>(false);
+  const [showYears, setShowYears] = useState<{ [key: number]: boolean }>({});
   const [canReturnCard, setCanReturnCard] = useState<boolean>(false);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
 
@@ -201,10 +201,10 @@ const Home = () => {
       `}
     >
       <ResultMessage
-        isGameOver={isGameOver}
-        isCorrectOrder={isCorrectOrder}
         deckLength={deck.length}
         rankings={rankings}
+        isGameOver={isGameOver}
+        isCorrectOrder={isCorrectOrder}
       />
       <PlayerCountPicker
         playerCount={playerCount}
@@ -212,14 +212,11 @@ const Home = () => {
       />
       <DistributeButton
         deck={deck}
-        originalDeck={originalDeck}
         setDeck={setDeck}
-        fetchCards={fetchCards}
+        originalDeck={originalDeck}
         playerCount={playerCount}
         onDistribute={onDistribute}
-        setIsCorrectOrder={setIsCorrectOrder}
         setCurrentTurn={setCurrentTurn}
-        setRankings={setRankings}
       />
 
       <button onClick={returnCardToHand} disabled={!canReturnCard}>
@@ -232,18 +229,15 @@ const Home = () => {
       <DndProvider backend={HTML5Backend}>
         <Board
           tableCards={tableCards}
-          playerCards={playerCards}
-          playerCount={playerCount}
-          currentTurn={currentTurn}
           setTableCards={setTableCards}
+          playerCards={playerCards}
           setPlayerCards={setPlayerCards}
+          lockedCardIds={lockedCardIds}
+          showYears={showYears}
           setLastDroppedCardId={setLastDroppedCardId}
           setLastDroppedCard={setLastDroppedCard}
           setCanCheckResult={setCanCheckResult}
           setCanReturnCard={setCanReturnCard}
-          isCorrectOrder={isCorrectOrder}
-          lockedCardIds={lockedCardIds}
-          showYears={showYears}
         />
         <PlayerHand playerCards={playerCards} currentTurn={currentTurn} />
       </DndProvider>
@@ -251,4 +245,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default TimeLineGame;

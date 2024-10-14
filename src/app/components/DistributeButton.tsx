@@ -24,7 +24,8 @@ export const DistributeButton = (props: DistributeCardsProps) => {
       shuffledDeck.length
     );
 
-    const requiredCards = props.playerCount * 2 + 1; // 必要なカード枚数
+    // 必要なカード枚数
+    const requiredCards = props.playerCount * 2 + 1;
     if (shuffledDeck.length < requiredCards) {
       console.error("デッキに十分なカードがありません。");
       return;
@@ -58,6 +59,7 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     if (tableCard) {
       props.onDistribute(playerCards, tableCard);
       props.setDeck(shuffledDeck); // 残りのデッキをセット
+      props.setCurrentTurn(0); // プレイヤー1のターンからスタート
       console.log("配布後のデッキ枚数:", shuffledDeck.length); // デッキが減ったか確認
     } else {
       console.error("デッキに十分なカードがありません。");
