@@ -24,7 +24,7 @@ export const ResultMessage = (props: ResultMessageProps) => {
               {rank + 1}位: プレイヤー {playerIndex + 1}
             </li>
           ))}
-        </ul>{" "}
+        </ul>
       </div>
     );
   }

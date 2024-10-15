@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { useState, useEffect } from "react";
 import { css } from "@emotion/react";
 import { DndProvider } from "react-dnd";
+import { AppConst } from "@/common/AppConst";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { getRandomCards } from "@/app/utils/functions";
 import { ResultMessage } from "@/app/components/ResultMessage";
@@ -25,7 +26,9 @@ const TimeLineGame = () => {
   const [deck, setDeck] = useState<CardProps[]>([]);
   const [playerCards, setPlayerCards] = useState<CardProps[][]>([]);
   const [tableCards, setTableCards] = useState<CardProps[]>([]);
-  const [playerCount, setPlayerCount] = useState<number>(2);
+  const [playerCount, setPlayerCount] = useState<number>(
+    AppConst.DEFAULT_PLAYER_COUNT
+  );
   const [isCorrectOrder, setIsCorrectOrder] = useState<boolean | null>(null);
   const [rankings, setRankings] = useState<number[]>([]);
   const [currentTurn, setCurrentTurn] = useState<number>(0);
@@ -38,19 +41,21 @@ const TimeLineGame = () => {
     originalIndex: number;
   } | null>(null);
   const [lockedCardIds, setLockedCardIds] = useState<number[]>([]);
-  const [canCheckResult, setCanCheckResult] = useState<boolean>(false);
   const [showYears, setShowYears] = useState<{ [key: number]: boolean }>({});
+  const [canCheckResult, setCanCheckResult] = useState<boolean>(false);
   const [canReturnCard, setCanReturnCard] = useState<boolean>(false);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
 
   // Supabaseからカード情報を取得
   const fetchCards = async () => {
-    const { data, error } = await supabase.from("timeline-cards").select("*");
+    const { data, error } = await supabase
+      .from(AppConst.TIMELINE_CARDS)
+      .select("*");
     if (error) {
       console.error("カード情報の取得に失敗しました:", error);
     } else if (data && data.length > 0) {
       setOriginalDeck(data);
-      const randomCards = getRandomCards(data, 50);
+      const randomCards = getRandomCards(data, AppConst.DECK_COUNT);
       setDeck(randomCards);
     } else {
       setDeck([]);
@@ -89,13 +94,14 @@ const TimeLineGame = () => {
   // 場に出たカードの並び順確認
   const checkOrder = () => {
     const isSorted = tableCards.every(
+      // 最初に場に出たカードもしくは2番目以降のカード（現在のカード）が前のカードより大きい時に正解判定
       (card, index, arr) => index === 0 || card.year >= arr[index - 1].year
     );
 
     if (isSorted) {
       setIsCorrectOrder(true);
 
-      // 正解の場合、プレイヤーの手札が空になったらゲームを終了
+      // 正解になった時に、全てのプレイヤーの手札が空になったらゲームを終了
       if (playerCards.every((hand) => hand.length === 0)) {
         console.log("ゲーム終了: 全プレイヤーの手札がなくなりました");
         setIsGameOver(true);
@@ -111,11 +117,11 @@ const TimeLineGame = () => {
         setIsGameOver(true);
         return;
       } else {
-        // デッキが残っている場合は場のカードを並べ替え、ドロー
+        // デッキが残っている場合は場のカードを並べ替えてドロー
         const sortedCards = [...tableCards].sort((a, b) => a.year - b.year);
         setTableCards(sortedCards);
 
-        // ドロップしたカードの年を表示
+        // 結果確認して間違えていたカードの年を表示
         if (lastDroppedCardId !== null) {
           setShowYears((prev) => ({ ...prev, [lastDroppedCardId]: true }));
         }
@@ -134,7 +140,7 @@ const TimeLineGame = () => {
     const lockedIds = tableCards.map((card) => card.id);
     setLockedCardIds(lockedIds);
 
-    // 次のターンのプレイヤーに移行
+    // 3人参加の時、プレイヤー1 (prevTurn = 0) の次は (0 + 1) % 3 = 1 → プレイヤー2
     setCurrentTurn((prevTurn) => {
       let nextTurn = (prevTurn + 1) % playerCount;
       while (playerCards[nextTurn].length === 0) {

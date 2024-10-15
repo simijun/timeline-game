@@ -1,3 +1,4 @@
+import { AppConst } from "@/common/AppConst";
 import { PlayerCountPickerProps } from "@/app/types/PlayerCountPicker";
 
 // ----------------------------------------------------------------------------------------------------
@@ -16,7 +17,7 @@ export const PlayerCountPicker = (props: PlayerCountPickerProps) => {
         value={props.playerCount}
         onChange={(e) => props.setPlayerCount(Number(e.target.value))}
       >
-        {[2, 3, 4, 5, 6].map((num) => (
+        {AppConst.PLAYER_OPTIONS.map((num) => (
           <option key={num} value={num}>
             {num}
           </option>

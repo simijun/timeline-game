@@ -1,3 +1,4 @@
+import { AppConst } from "@/common/AppConst";
 import { CardProps } from "@/app/types/Card";
 import { DistributeCardsProps } from "@/app/types/DistributeButton";
 import { getRandomCards } from "@/app/utils/functions";
@@ -18,14 +19,14 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     }
 
     // originalDeck からランダムに指定枚数選んでデッキを生成
-    let shuffledDeck = getRandomCards(props.originalDeck, 50);
+    let shuffledDeck = getRandomCards(props.originalDeck, AppConst.DECK_COUNT);
     console.log(
       "ゲームに使用するシャッフル後のデッキ枚数:",
       shuffledDeck.length
     );
 
     // 必要なカード枚数
-    const requiredCards = props.playerCount * 2 + 1;
+    const requiredCards = props.playerCount * AppConst.PLAYER_COUNT + 1;
     if (shuffledDeck.length < requiredCards) {
       console.error("デッキに十分なカードがありません。");
       return;
@@ -36,8 +37,8 @@ export const DistributeButton = (props: DistributeCardsProps) => {
       () => []
     );
 
-    // 各プレイヤーに2枚ずつ配布
-    for (let i = 0; i < 2; i++) {
+    // 各プレイヤーにカード配布
+    for (let i = 0; i < AppConst.PLAYER_COUNT; i++) {
       for (let j = 0; j < props.playerCount; j++) {
         const cardToDistribute = shuffledDeck.pop();
         console.log(
