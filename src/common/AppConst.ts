@@ -1,7 +1,8 @@
 /**
  * アプリ共通定数定義
  */
-
+// ※クラス名とimport名を同一にするためlintオプションでnamespaceの使用を許可する
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AppConst {
   // ----------------------------------------------------------------------------------------------------
   // レスポンシブデザインのブレイクポイント
@@ -29,6 +30,7 @@ export namespace AppConst {
 
   /** カードジャンル */
   export const GENRE_HISTORY = "history";
+  export const GENRE_INVENTION = "invention";
 
   // ----------------------------------------------------------------------------------------------------
   // ゲーム設定
