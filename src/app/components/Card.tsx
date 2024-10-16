@@ -33,13 +33,14 @@ export const Card = (props: DraggableCardProps) => {
     <div
       ref={ref}
       css={css`
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        font-size: 10px;
-        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        font-size: 12px;
+        padding: 10px;
         margin: 10px;
-        width: 100px;
-        height: 140px;
+        width: 120px;
+        height: 190px;
+        background-color: #f5deb3;
         text-align: center;
         transition: transform 0.3s ease;
         opacity: ${isDragging ? 0.5 : 1};
@@ -55,16 +56,26 @@ export const Card = (props: DraggableCardProps) => {
             alt={props.card.event}
             css={css`
               width: 100%;
-              height: 70%;
-              border-radius: 10px;
+              height: 65%;
+              border-radius: 8px;
               object-fit: cover;
+              margin-bottom: 10px;
             `}
           />
-          <h3>{props.card.event}</h3>
+          <h3
+            css={css`
+              font-size: 14px;
+              margin-bottom: 5px;
+              color: #333;
+              font-weight: bold;
+            `}
+          >
+            {props.card.event}
+          </h3>
           {props.showYear && (
             <p
               css={css`
-                color: red;
+                color: #d9534f;
                 font-size: 14px;
                 font-weight: bold;
               `}

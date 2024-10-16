@@ -118,37 +118,54 @@ export const Board = (props: BoardProps) => {
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
+        width: 80vw; /* 幅を設定 */
+        height: 250px; /* 高さを直径として半円の形状に */
+        background: #2c3e50;
+        border-radius: 125px / 125px; /* 完全な左右の半円 */
         padding: 20px;
-        background-color: ${isOver ? "lightblue" : "transparent"};
+        box-shadow: ${isOver
+          ? "0 0 20px rgba(0, 255, 255, 0.6)" /* ドロップ時のハイライト */
+          : "0 0 15px rgba(0, 0, 0, 0.5)"}; /* 通常時のシャドウ */
+        border: ${isOver
+          ? "10px solid #00bfff"
+          : "8px solid white"}; /* ドロップ時にボーダーを変化 */
+        transition: all 0.3s ease;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #e0e0e0;
+        padding-left: 40px; /* 左右に余白を追加 */
+        padding-right: 40px; /* 左右に余白を追加 */
       `}
     >
-      {props.tableCards.length > 0 && (
-        <div
-          css={css`
-            display: flex;
-            overflow-x: auto;
-            max-width: 80vw;
-            padding: 10px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-          `}
-        >
-          {props.tableCards.map((card, index) => (
-            <div
-              key={`table-card-${index}-${card.id}`}
-              id={`table-card-${card.id}`}
-            >
-              <Card
-                index={index}
-                card={card}
-                isTableCard={true}
-                playerIndex={-1}
-                showYear={!!props.showYears[card.id]}
-                isDraggable={!props.lockedCardIds.includes(card.id)}
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      <div
+        css={css`
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 15px; /* カードの間隔 */
+        `}
+      >
+        {props.tableCards.map((card, index) => (
+          <div
+            key={`table-card-${index}-${card.id}`}
+            id={`table-card-${card.id}`}
+            css={css`
+              margin: 0 10px;
+            `}
+          >
+            <Card
+              index={index}
+              card={card}
+              isTableCard={true}
+              playerIndex={-1}
+              showYear={!!props.showYears[card.id]}
+              isDraggable={!props.lockedCardIds.includes(card.id)}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

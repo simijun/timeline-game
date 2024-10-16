@@ -46,5 +46,5 @@ export namespace AppConst {
   export const DECK_COUNT = 50;
 
   /** ゲームスタート時1プレイヤーに配られるカード枚数 */
-  export const INITIAL_CARDS_PER_PLAYER = 2;
+  export const INITIAL_CARDS_PER_PLAYER = 4;
 }

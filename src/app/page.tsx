@@ -212,6 +212,7 @@ const TimeLineGame = () => {
         flex-direction: column;
         align-items: center;
         padding: 20px;
+        background: #f0f0f0;
       `}
     >
       <ResultMessage
