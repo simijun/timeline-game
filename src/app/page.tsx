@@ -3,6 +3,7 @@
 import { supabase } from "../../lib/supabase";
 import { useState, useEffect } from "react";
 import { css } from "@emotion/react";
+import { FaUndo, FaCheckCircle } from "react-icons/fa";
 import { DndProvider } from "react-dnd";
 import { AppConst } from "@/common/AppConst";
 import { HTML5Backend } from "react-dnd-html5-backend";

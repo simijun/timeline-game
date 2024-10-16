@@ -1,3 +1,5 @@
+import { css } from "@emotion/react";
+import { FaHandPaper } from "react-icons/fa";
 import { AppConst } from "@/common/AppConst";
 import { CardProps } from "@/app/types/Card";
 import { DistributeCardsProps } from "@/app/types/DistributeButton";
@@ -68,7 +70,38 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     }
   };
 
-  return <button onClick={distributeCards}>カードを配布</button>;
+  return (
+    <button
+      onClick={distributeCards}
+      css={css`
+        background-color: #28a745;
+        color: white;
+        padding: 12px 25px;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #218838; /* ホバー時の濃い緑 */
+          transform: translateY(-3px); /* 少し浮き上がる */
+          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* 影が強くなる */
+        }
+
+        &:active {
+          transform: translateY(1px); /* 押し込みアニメーション */
+        }
+      `}
+    >
+      <FaHandPaper size={24} /> カードを配布
+    </button>
+  );
 };
 
 export default DistributeButton;
