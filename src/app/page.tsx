@@ -14,6 +14,8 @@ import { Board } from "@/app/components/Board";
 import { PlayerHand } from "@/app/components/PlayerHand";
 import { CardProps } from "@/app/types/Card";
 import { PlayerCountPicker } from "@/app/components/PlayerCountPicker";
+import CheckResultButton from "@/app/components/CheckResultButton";
+import ReturnToHandButton from "@/app/components/ReturnToHnadButton";
 
 // ----------------------------------------------------------------------------------------------------
 // Reactコンポーネント
@@ -149,7 +151,7 @@ const TimeLineGame = () => {
     const lockedIds = tableCards.map((card) => card.id);
     setLockedCardIds(lockedIds);
 
-    // 3人参加の時、プレイヤー1 (prevTurn = 0) の次は (0 + 1) % 3 = 1 → プレイヤー2
+    // 例）3人参加の時、プレイヤー1 （prevTurn = 0）の次は（0 + 1）% 3 = 1 → プレイヤー2（prevTurn = 1）
     setCurrentTurn((prevTurn) => {
       let nextTurn = (prevTurn + 1) % playerCount;
       while (playerCards[nextTurn].length === 0) {
@@ -211,8 +213,10 @@ const TimeLineGame = () => {
       css={css`
         display: flex;
         flex-direction: column;
-        align-items: center;
-        padding: 20px;
+        justify-content: center; /* 子要素を縦方向に中央揃え */
+        align-items: center; /* 子要素を横方向に中央揃え */
+        height: 100vh; /* 画面全体の高さを確保 */
+        padding-bottom: 80px; /* 下の固定ボタンと被らないように余白を確保 */
         background: #f0f0f0;
       `}
     >
@@ -222,44 +226,71 @@ const TimeLineGame = () => {
         isGameOver={isGameOver}
         isCorrectOrder={isCorrectOrder}
       />
-      <PlayerCountPicker
-        playerCount={playerCount}
-        setPlayerCount={setPlayerCount}
-      />
-      <DistributeButton
-        deck={deck}
-        setDeck={setDeck}
-        originalDeck={originalDeck}
-        playerCount={playerCount}
-        onDistribute={(playerCards, tableCard) => {
-          onDistribute(playerCards, tableCard);
-          resetGameState();
-        }}
-        setCurrentTurn={setCurrentTurn}
-      />
 
-      <button onClick={returnCardToHand} disabled={!canReturnCard}>
-        手札に戻す
-      </button>
-      <button onClick={checkOrder} disabled={!canCheckResult}>
-        結果を確認
-      </button>
-
+      {/* Board と PlayerHand を中央に配置 */}
       <DndProvider backend={HTML5Backend}>
-        <Board
-          tableCards={tableCards}
-          setTableCards={setTableCards}
-          playerCards={playerCards}
-          setPlayerCards={setPlayerCards}
-          lockedCardIds={lockedCardIds}
-          showYears={showYears}
-          setLastDroppedCardId={setLastDroppedCardId}
-          setLastDroppedCard={setLastDroppedCard}
-          setCanCheckResult={setCanCheckResult}
-          setCanReturnCard={setCanReturnCard}
-        />
-        <PlayerHand playerCards={playerCards} currentTurn={currentTurn} />
+        <div
+          css={css`
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            flex-grow: 1; /* 高さが空いている限り広がる */
+          `}
+        >
+          <Board
+            tableCards={tableCards}
+            setTableCards={setTableCards}
+            playerCards={playerCards}
+            setPlayerCards={setPlayerCards}
+            lockedCardIds={lockedCardIds}
+            showYears={showYears}
+            setLastDroppedCardId={setLastDroppedCardId}
+            setLastDroppedCard={setLastDroppedCard}
+            setCanCheckResult={setCanCheckResult}
+            setCanReturnCard={setCanReturnCard}
+          />
+          <PlayerHand playerCards={playerCards} currentTurn={currentTurn} />
+        </div>
       </DndProvider>
+
+      {/* ボタンを画面下に固定 */}
+      <div
+        css={css`
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          display: flex;
+          justify-content: space-evenly;
+          align-items: center;
+          background-color: rgba(240, 240, 240, 0.9);
+          padding: 10px;
+          box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+          z-index: 1000;
+        `}
+      >
+        <PlayerCountPicker
+          playerCount={playerCount}
+          setPlayerCount={setPlayerCount}
+        />
+        <DistributeButton
+          deck={deck}
+          setDeck={setDeck}
+          originalDeck={originalDeck}
+          playerCount={playerCount}
+          onDistribute={(playerCards, tableCard) => {
+            onDistribute(playerCards, tableCard);
+            resetGameState();
+          }}
+          setCurrentTurn={setCurrentTurn}
+        />
+        <ReturnToHandButton
+          onClick={returnCardToHand}
+          isEnabled={canReturnCard}
+        />
+        <CheckResultButton onClick={checkOrder} isEnabled={canCheckResult} />
+      </div>
     </div>
   );
 };
