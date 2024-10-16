@@ -68,6 +68,12 @@ const TimeLineGame = () => {
     setTableCards([tableCard]);
   };
 
+  // ゲーム状態初期化
+  const resetGameState = () => {
+    setIsGameOver(false);
+    setIsCorrectOrder(null);
+  };
+
   // 山札からカードを引く処理
   const drawCard = () => {
     if (deck.length === 0) return null;
@@ -223,7 +229,10 @@ const TimeLineGame = () => {
         setDeck={setDeck}
         originalDeck={originalDeck}
         playerCount={playerCount}
-        onDistribute={onDistribute}
+        onDistribute={(playerCards, tableCard) => {
+          onDistribute(playerCards, tableCard);
+          resetGameState();
+        }}
         setCurrentTurn={setCurrentTurn}
       />
 
