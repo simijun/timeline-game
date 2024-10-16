@@ -83,11 +83,13 @@ const TimeLineGame = () => {
       .map((cards, index) => (cards.length === 0 ? index : null))
       .filter((index) => index !== null);
 
-    if (
-      completedPlayers.length > 0 &&
-      !rankings.includes(completedPlayers[0])
-    ) {
-      setRankings([...rankings, ...completedPlayers]);
+    // すでにランキングに含まれていないプレイヤーのみ追加
+    const newRankings = completedPlayers.filter(
+      (playerIndex) => !rankings.includes(playerIndex)
+    );
+
+    if (newRankings.length > 0) {
+      setRankings([...rankings, ...newRankings]);
     }
   };
 

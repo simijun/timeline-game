@@ -26,7 +26,8 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     );
 
     // 必要なカード枚数
-    const requiredCards = props.playerCount * AppConst.PLAYER_COUNT + 1;
+    const requiredCards =
+      props.playerCount * AppConst.INITIAL_CARDS_PER_PLAYER + 1;
     if (shuffledDeck.length < requiredCards) {
       console.error("デッキに十分なカードがありません。");
       return;
@@ -38,7 +39,7 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     );
 
     // 各プレイヤーにカード配布
-    for (let i = 0; i < AppConst.PLAYER_COUNT; i++) {
+    for (let i = 0; i < AppConst.INITIAL_CARDS_PER_PLAYER; i++) {
       for (let j = 0; j < props.playerCount; j++) {
         const cardToDistribute = shuffledDeck.pop();
         console.log(
