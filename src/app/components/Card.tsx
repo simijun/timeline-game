@@ -75,8 +75,8 @@ export const Card = (props: DraggableCardProps) => {
           {props.showYear && (
             <p
               css={css`
-                color: #d9534f;
-                font-size: 14px;
+                color: #ff4500;
+                font-size: 18px;
                 font-weight: bold;
               `}
             >

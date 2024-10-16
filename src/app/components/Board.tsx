@@ -144,7 +144,7 @@ export const Board = (props: BoardProps) => {
           display: flex;
           justify-content: center;
           align-items: center;
-          gap: 15px; /* カードの間隔 */
+          gap: 5px; /* カードの間隔 */
         `}
       >
         {props.tableCards.map((card, index) => (

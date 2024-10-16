@@ -33,12 +33,19 @@ export const ResultMessage = (props: ResultMessageProps) => {
     return (
       <div>
         {props.isCorrectOrder ? (
-          <p>正解!</p>
+          <p
+            css={css`
+              font-size: 30px;
+            `}
+          >
+            正解!
+          </p>
         ) : (
           <p
             css={css`
-              color: red;
+              color: #ff4500;
               font-weight: bold;
+              font-size: 30px;
             `}
           >
             不正解!
