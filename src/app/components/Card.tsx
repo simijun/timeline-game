@@ -38,8 +38,8 @@ export const Card = (props: DraggableCardProps) => {
         font-size: 8px;
         padding: 7px; /* この値を調整してカード内の余白を減らす */
         margin: 0px 7px;
-        width: 90px;
-        height: 140px;
+        width: 100px;
+        height: 150px;
         background-color: #f5deb3;
         text-align: center;
         transition: transform 0.3s ease;
