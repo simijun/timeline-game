@@ -121,7 +121,9 @@ export const Board = (props: BoardProps) => {
         justify-content: center;
         width: 80vw; /* 幅を設定 */
         height: 250px; /* 高さを直径として半円の形状に */
-        background: #2c3e50;
+        background-image: url("/board-image.png");
+        background-size: cover; /* 画像をボードに合わせて拡大・縮小 */
+        background-position: center; /* 画像を中央に配置 */
         border-radius: 125px / 125px; /* 完全な左右の半円 */
         padding: 20px;
         box-shadow: ${isOver

@@ -17,10 +17,23 @@ export default function RootLayout({
           name="description"
           content="A fun game to arrange events in chronological order"
         />
+        <link rel="icon" href="/timeline-app-icon.png" sizes="32x32" />
       </head>
-      <body className={inter.className}>
+      <body
+        className={inter.className}
+        // style={{
+        //   backgroundImage: "url('/board-image.png')",
+        //   backgroundSize: "cover",
+        //   backgroundPosition: "center",
+        //   backgroundRepeat: "no-repeat",
+        // }}
+      >
         <header>
-          <h1>Timeline Game</h1>
+          {/* <img
+            src="/a.png"
+            alt="Timeline Game Title Logo"
+            style={{ width: "600px", height: "auto" }}
+          /> */}
         </header>
         {children}
       </body>
