@@ -36,7 +36,7 @@ export const Card = (props: DraggableCardProps) => {
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         font-size: 8px;
-        padding: 7px; /* この値を調整してカード内の余白を減らす */
+        padding: 7px;
         margin: 0px 7px;
         width: 100px;
         height: 150px;
@@ -59,7 +59,7 @@ export const Card = (props: DraggableCardProps) => {
               height: 65%;
               border-radius: 8px;
               object-fit: cover;
-              margin-bottom: 10px;
+              margin: 1px 0 5px 0;
             `}
           />
           <h3
