@@ -8,6 +8,7 @@ import { CardProps } from "@/app/types/Card";
  * - playerCount: 参加人数
  * - onDistribute：カード配布処理
  * - setCurrentTurn: プレイヤーターンの更新関数
+ * - getRandomCards: ランダムなカードを抽出する関数
  */
 export type DistributeCardsProps = {
   originalDeck: CardProps[];
@@ -16,4 +17,5 @@ export type DistributeCardsProps = {
   playerCount: number;
   onDistribute: (playerCards: CardProps[][], tableCard: CardProps) => void;
   setCurrentTurn: (turn: number) => void;
+  getRandomCards: (cards: CardProps[], count: number) => CardProps[];
 };

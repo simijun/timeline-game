@@ -3,7 +3,6 @@ import { FaHandPaper } from "react-icons/fa";
 import { AppConst } from "@/common/AppConst";
 import { CardProps } from "@/app/types/Card";
 import { DistributeCardsProps } from "@/app/types/DistributeButton";
-import { getRandomCards } from "@/app/utils/functions";
 
 // ----------------------------------------------------------------------------------------------------
 // Reactコンポーネント
@@ -21,7 +20,10 @@ export const DistributeButton = (props: DistributeCardsProps) => {
     }
 
     // originalDeck からランダムに指定枚数選んでデッキを生成
-    let shuffledDeck = getRandomCards(props.originalDeck, AppConst.DECK_COUNT);
+    let shuffledDeck = props.getRandomCards(
+      props.originalDeck,
+      AppConst.DECK_COUNT
+    );
     console.log(
       "ゲームに使用するシャッフル後のデッキ枚数:",
       shuffledDeck.length

@@ -19,10 +19,7 @@ export default function RootLayout({
         />
         <link rel="icon" href="/timeline-app-icon.png" sizes="32x32" />
       </head>
-      <body className={inter.className}>
-        {/* <header></header> */}
-        {children}
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

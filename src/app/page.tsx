@@ -6,7 +6,6 @@ import { css } from "@emotion/react";
 import { DndProvider } from "react-dnd";
 import { AppConst } from "@/common/AppConst";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { getRandomCards } from "@/app/utils/functions";
 import { ResultMessage } from "@/app/components/ResultMessage";
 import { DistributeButton } from "@/app/components/DistributeButton";
 import { Board } from "@/app/components/Board";
@@ -62,6 +61,12 @@ const TimeLineGame = () => {
     } else {
       setDeck([]);
     }
+  };
+
+  // ランダムにカードを選ぶ関数
+  const getRandomCards = (cards: CardProps[], count: number) => {
+    const shuffled = [...cards].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
   };
 
   // プレイヤーと場へのカード配布処理
@@ -212,19 +217,27 @@ const TimeLineGame = () => {
       css={css`
         display: flex;
         flex-direction: column;
-        justify-content: center; /* 子要素を縦方向に中央揃え */
-        align-items: center; /* 子要素を横方向に中央揃え */
-        height: 100vh; /* 画面全体の高さを確保 */
-        padding-bottom: 80px; /* 下の固定ボタンと被らないように余白を確保 */
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding-bottom: 80px;
         background: #f0f0f0;
       `}
     >
-      <ResultMessage
-        deckLength={deck.length}
-        rankings={rankings}
-        isGameOver={isGameOver}
-        isCorrectOrder={isCorrectOrder}
-      />
+      {/* ボードのすぐ上に結果表示文言を配置 */}
+      <div
+        css={css`
+          margin-bottom: 10px; /* ボードと結果文言の間に余白を追加 */
+        `}
+      >
+        <ResultMessage
+          deckLength={deck.length}
+          rankings={rankings}
+          isGameOver={isGameOver}
+          isCorrectOrder={isCorrectOrder}
+        />
+      </div>
+
       {/* Board と PlayerHand を中央に配置 */}
       <DndProvider backend={HTML5Backend}>
         <div
@@ -233,7 +246,7 @@ const TimeLineGame = () => {
             justify-content: center;
             align-items: center;
             width: 80%;
-            flex-grow: 1; /* 高さが空いている限り広がる */
+            flex-grow: 1;
           `}
         >
           <Board
@@ -281,6 +294,7 @@ const TimeLineGame = () => {
             onDistribute(playerCards, tableCard);
             resetGameState();
           }}
+          getRandomCards={getRandomCards}
           setCurrentTurn={setCurrentTurn}
         />
         <ReturnToHandButton
