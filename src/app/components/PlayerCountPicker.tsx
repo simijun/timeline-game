@@ -24,7 +24,7 @@ export const PlayerCountPicker = (props: PlayerCountPickerProps) => {
           font-size: 12px;
           font-weight: bold;
           color: #333;
-          margin-right: 15px; /* ラベルとボタンの間隔 */
+          margin-right: 10px;
         `}
       >
         参加人数：

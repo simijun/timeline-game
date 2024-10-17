@@ -84,13 +84,14 @@ const TimeLineGame = () => {
   // プレイヤーの手札を人数に応じて表示するためのレイアウトを定義
   const getPlayerHandLayout = () => {
     if (playerCount === 2) {
+      // 2人プレイヤーの手札を上下に分ける
       return (
         <>
           <div
             css={css`
               display: flex;
               justify-content: center;
-              margin-bottom: 10px;
+              margin-bottom: 10px; /* 上側のプレイヤー */
             `}
           >
             <PlayerHand
@@ -103,7 +104,7 @@ const TimeLineGame = () => {
             css={css`
               display: flex;
               justify-content: center;
-              margin-top: 10px;
+              margin-top: 10px; /* 下側のプレイヤー */
             `}
           >
             <PlayerHand
@@ -115,14 +116,15 @@ const TimeLineGame = () => {
         </>
       );
     } else if (playerCount === 3) {
+      // 3人プレイヤーの手札を上2人、下1人に分ける
       return (
         <>
           <div
             css={css`
               display: flex;
               justify-content: center;
-              margin-bottom: 10px;
               gap: 20px;
+              margin-bottom: 10px; /* 上側の2人 */
             `}
           >
             <PlayerHand
@@ -140,7 +142,7 @@ const TimeLineGame = () => {
             css={css`
               display: flex;
               justify-content: center;
-              margin-top: 10px;
+              margin-top: 10px; /* 下側の1人 */
             `}
           >
             <PlayerHand
@@ -152,14 +154,15 @@ const TimeLineGame = () => {
         </>
       );
     } else if (playerCount === 4) {
+      // 4人プレイヤーの手札を上下2人ずつに分ける
       return (
         <>
           <div
             css={css`
               display: flex;
               justify-content: center;
-              margin-bottom: 10px;
               gap: 20px;
+              margin-bottom: 10px; /* 上側の2人 */
             `}
           >
             <PlayerHand
@@ -177,8 +180,8 @@ const TimeLineGame = () => {
             css={css`
               display: flex;
               justify-content: center;
-              margin-top: 10px;
               gap: 20px;
+              margin-top: 10px; /* 下側の2人 */
             `}
           >
             <PlayerHand
@@ -271,8 +274,8 @@ const TimeLineGame = () => {
     const lockedIds = tableCards.map((card) => card.id);
     setLockedCardIds(lockedIds);
 
+    // 例）3人参加の時、プレイヤー1 （prevTurn = 0）の次は（0 + 1）% 3 = 1 → プレイヤー2（prevTurn = 1）
     setCurrentTurn((prevTurn) => {
-      // 例）3人参加の時、プレイヤー1 （prevTurn = 0）の次は（0 + 1）% 3 = 1 → プレイヤー2（prevTurn = 1）
       let nextTurn = (prevTurn + 1) % playerCount;
       while (playerCards[nextTurn].length === 0) {
         nextTurn = (nextTurn + 1) % playerCount;
@@ -340,7 +343,7 @@ const TimeLineGame = () => {
         background: #f0f0f0;
       `}
     >
-      {/* ボードのすぐ上に結果表示文言を配置 */}
+      {/* ボードのすぐ上に結果表示文言を配置 必要か検証中 */}
       <div
         css={css`
           margin-bottom: 10px; /* ボードと結果文言の間に余白を追加 */
@@ -353,8 +356,6 @@ const TimeLineGame = () => {
           isCorrectOrder={isCorrectOrder}
         />
       </div>
-
-      {/* ボードを中央に配置 */}
       <DndProvider backend={HTML5Backend}>
         {/* プレイヤー手札を人数に応じて配置 */}
         {getPlayerHandLayout()}

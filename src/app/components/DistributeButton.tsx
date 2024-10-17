@@ -91,17 +91,17 @@ export const DistributeButton = (props: DistributeCardsProps) => {
         cursor: pointer;
 
         &:hover {
-          background-color: #218838; /* ホバー時の濃い緑 */
-          transform: translateY(-3px); /* 少し浮き上がる */
-          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* 影が強くなる */
+          background-color: #218838;
+          transform: translateY(-3px);
+          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
 
         &:active {
-          transform: translateY(1px); /* 押し込みアニメーション */
+          transform: translateY(1px);
         }
       `}
     >
-      <FaHandPaper size={24} /> カードを配布
+      <FaHandPaper size={24} /> カード配布
     </button>
   );
 };

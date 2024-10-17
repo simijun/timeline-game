@@ -24,7 +24,7 @@ export const PlayerHand = (props: PlayerHandProps) => {
             min-height: 150px;
             margin-bottom: 2px;
             opacity: ${props.playerIndex === props.currentTurn ? 1 : 0.5};
-            border: 3px solid #4169e1;
+            border: 2px solid #4169e1;
             padding: 10px;
             box-sizing: border-box;
           `}
