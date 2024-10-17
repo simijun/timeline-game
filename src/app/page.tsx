@@ -3,7 +3,6 @@
 import { supabase } from "../../lib/supabase";
 import { useState, useEffect } from "react";
 import { css } from "@emotion/react";
-import { FaUndo, FaCheckCircle } from "react-icons/fa";
 import { DndProvider } from "react-dnd";
 import { AppConst } from "@/common/AppConst";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -234,7 +233,8 @@ const TimeLineGame = () => {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
+            width: 70%;
+            height: 10px;
             flex-grow: 1; /* 高さが空いている限り広がる */
           `}
         >

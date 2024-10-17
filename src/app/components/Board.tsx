@@ -120,7 +120,7 @@ export const Board = (props: BoardProps) => {
         align-items: center;
         justify-content: center;
         width: 80vw; /* 幅を設定 */
-        height: 250px; /* 高さを直径として半円の形状に */
+        height: 150px; /* 高さを直径として半円の形状に */
         background-image: url("/board-image.png");
         background-size: cover; /* 画像をボードに合わせて拡大・縮小 */
         background-position: center; /* 画像を中央に配置 */
@@ -133,12 +133,15 @@ export const Board = (props: BoardProps) => {
           ? "10px solid #00bfff"
           : "8px solid white"}; /* ドロップ時にボーダーを変化 */
         transition: all 0.3s ease;
-        overflow-x: auto;
+        overflow-x: auto; /* 横スクロールを有効化 */
+        overflow-y: hidden; /* 縦スクロールを無効化 */
         scroll-behavior: smooth;
         scrollbar-width: thin;
         scrollbar-color: #888 #e0e0e0;
-        padding-left: 40px; /* 左右に余白を追加 */
-        padding-right: 40px; /* 左右に余白を追加 */
+        padding-left: 60px; /* 左右に余白を追加 */
+        padding-right: 60px; /* 左右に余白を追加 */
+        gap: 20px; /* カード間の余白 */
+        margin-bottom: 20px; /* ボードと手札の間に余白を追加 */
       `}
     >
       <div
@@ -154,7 +157,7 @@ export const Board = (props: BoardProps) => {
             key={`table-card-${index}-${card.id}`}
             id={`table-card-${card.id}`}
             css={css`
-              margin: 0 10px;
+              margin: 0 1px;
             `}
           >
             <Card

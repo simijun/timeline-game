@@ -35,7 +35,7 @@ export const ResultMessage = (props: ResultMessageProps) => {
         {props.isCorrectOrder ? (
           <p
             css={css`
-              font-size: 30px;
+              font-size: 16px;
             `}
           >
             正解!
@@ -45,7 +45,7 @@ export const ResultMessage = (props: ResultMessageProps) => {
             css={css`
               color: #ff4500;
               font-weight: bold;
-              font-size: 30px;
+              font-size: 16px;
             `}
           >
             不正解!

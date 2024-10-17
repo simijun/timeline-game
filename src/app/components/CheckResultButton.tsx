@@ -17,7 +17,7 @@ const CheckResultButton = (props: CheckResultButtonProps) => {
       css={css`
         background-color: ${props.isEnabled ? "#28a745" : "#ccc"};
         color: white;
-        font-size: 16px;
+        font-size: 10px;
         border: none;
         border-radius: 10px;
         padding: 10px 20px;

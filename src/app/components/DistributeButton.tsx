@@ -77,7 +77,7 @@ export const DistributeButton = (props: DistributeCardsProps) => {
         background-color: #28a745;
         color: white;
         padding: 12px 25px;
-        font-size: 18px;
+        font-size: 12px;
         font-weight: bold;
         border: none;
         border-radius: 50px;

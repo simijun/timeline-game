@@ -35,11 +35,11 @@ export const Card = (props: DraggableCardProps) => {
       css={css`
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        font-size: 12px;
-        padding: 10px;
-        margin: 10px;
-        width: 120px;
-        height: 190px;
+        font-size: 8px;
+        padding: 7px; /* この値を調整してカード内の余白を減らす */
+        margin: 0px 7px;
+        width: 90px;
+        height: 140px;
         background-color: #f5deb3;
         text-align: center;
         transition: transform 0.3s ease;
@@ -64,8 +64,8 @@ export const Card = (props: DraggableCardProps) => {
           />
           <h3
             css={css`
-              font-size: 14px;
-              margin-bottom: 5px;
+              font-size: 9px;
+              margin-bottom: 3px;
               color: #333;
               font-weight: bold;
             `}
@@ -76,8 +76,9 @@ export const Card = (props: DraggableCardProps) => {
             <p
               css={css`
                 color: #ff4500;
-                font-size: 18px;
+                font-size: 9px;
                 font-weight: bold;
+                margin-top: -1px;
               `}
             >
               {props.card.year}

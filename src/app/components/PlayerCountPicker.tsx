@@ -21,7 +21,7 @@ export const PlayerCountPicker = (props: PlayerCountPickerProps) => {
     >
       <label
         css={css`
-          font-size: 18px;
+          font-size: 12px;
           font-weight: bold;
           color: #333;
           margin-right: 15px; /* ラベルとボタンの間隔 */
@@ -48,7 +48,7 @@ export const PlayerCountPicker = (props: PlayerCountPickerProps) => {
                 ${props.playerCount === num ? "#0056b3" : "#ccc"};
               border-radius: 8px;
               padding: 10px 20px;
-              font-size: 16px;
+              font-size: 10px;
               font-weight: bold;
               display: flex;
               align-items: center;

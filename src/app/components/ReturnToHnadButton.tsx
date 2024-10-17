@@ -17,7 +17,7 @@ const ReturnToHandButton = (props: ReturnToHandButtonProps) => {
       css={css`
         background-color: ${props.isEnabled ? "#007bff" : "#ccc"};
         color: white;
-        font-size: 16px;
+        font-size: 10px;
         border: none;
         border-radius: 10px;
         padding: 10px 20px;

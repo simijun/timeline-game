@@ -19,6 +19,7 @@ export const PlayerHand = (props: PlayerHandProps) => {
             justify-content: center;
             flex-direction: row;
             width: 100%;
+            font-size: 10px;
           `}
         >
           {props.playerCards.map((playerHand, playerIndex) => (
