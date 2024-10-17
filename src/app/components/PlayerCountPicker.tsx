@@ -48,7 +48,7 @@ export const PlayerCountPicker = (props: PlayerCountPickerProps) => {
                 ${props.playerCount === num ? "#0056b3" : "#ccc"};
               border-radius: 8px;
               padding: 10px 20px;
-              font-size: 10px;
+              font-size: 12px;
               font-weight: bold;
               display: flex;
               align-items: center;
