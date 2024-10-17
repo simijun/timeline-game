@@ -225,7 +225,6 @@ const TimeLineGame = () => {
         isGameOver={isGameOver}
         isCorrectOrder={isCorrectOrder}
       />
-
       {/* Board と PlayerHand を中央に配置 */}
       <DndProvider backend={HTML5Backend}>
         <div
@@ -233,8 +232,7 @@ const TimeLineGame = () => {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 70%;
-            height: 10px;
+            width: 80%;
             flex-grow: 1; /* 高さが空いている限り広がる */
           `}
         >
