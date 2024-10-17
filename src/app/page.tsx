@@ -81,6 +81,122 @@ const TimeLineGame = () => {
     setIsCorrectOrder(null);
   };
 
+  // プレイヤーの手札を人数に応じて表示するためのレイアウトを定義
+  const getPlayerHandLayout = () => {
+    if (playerCount === 2) {
+      return (
+        <>
+          <div
+            css={css`
+              display: flex;
+              justify-content: center;
+              margin-bottom: 10px;
+            `}
+          >
+            <PlayerHand
+              playerCards={playerCards[0]}
+              currentTurn={currentTurn}
+              playerIndex={0}
+            />
+          </div>
+          <div
+            css={css`
+              display: flex;
+              justify-content: center;
+              margin-top: 10px;
+            `}
+          >
+            <PlayerHand
+              playerCards={playerCards[1]}
+              currentTurn={currentTurn}
+              playerIndex={1}
+            />
+          </div>
+        </>
+      );
+    } else if (playerCount === 3) {
+      return (
+        <>
+          <div
+            css={css`
+              display: flex;
+              justify-content: center;
+              margin-bottom: 10px;
+              gap: 20px;
+            `}
+          >
+            <PlayerHand
+              playerCards={playerCards[0]}
+              currentTurn={currentTurn}
+              playerIndex={0}
+            />
+            <PlayerHand
+              playerCards={playerCards[1]}
+              currentTurn={currentTurn}
+              playerIndex={1}
+            />
+          </div>
+          <div
+            css={css`
+              display: flex;
+              justify-content: center;
+              margin-top: 10px;
+            `}
+          >
+            <PlayerHand
+              playerCards={playerCards[2]}
+              currentTurn={currentTurn}
+              playerIndex={2}
+            />
+          </div>
+        </>
+      );
+    } else if (playerCount === 4) {
+      return (
+        <>
+          <div
+            css={css`
+              display: flex;
+              justify-content: center;
+              margin-bottom: 10px;
+              gap: 20px;
+            `}
+          >
+            <PlayerHand
+              playerCards={playerCards[0]}
+              currentTurn={currentTurn}
+              playerIndex={0}
+            />
+            <PlayerHand
+              playerCards={playerCards[1]}
+              currentTurn={currentTurn}
+              playerIndex={1}
+            />
+          </div>
+          <div
+            css={css`
+              display: flex;
+              justify-content: center;
+              margin-top: 10px;
+              gap: 20px;
+            `}
+          >
+            <PlayerHand
+              playerCards={playerCards[2]}
+              currentTurn={currentTurn}
+              playerIndex={2}
+            />
+            <PlayerHand
+              playerCards={playerCards[3]}
+              currentTurn={currentTurn}
+              playerIndex={3}
+            />
+          </div>
+        </>
+      );
+    }
+  };
+
   // 山札からカードを引く処理
   const drawCard = () => {
     if (deck.length === 0) return null;
@@ -155,8 +271,8 @@ const TimeLineGame = () => {
     const lockedIds = tableCards.map((card) => card.id);
     setLockedCardIds(lockedIds);
 
-    // 例）3人参加の時、プレイヤー1 （prevTurn = 0）の次は（0 + 1）% 3 = 1 → プレイヤー2（prevTurn = 1）
     setCurrentTurn((prevTurn) => {
+      // 例）3人参加の時、プレイヤー1 （prevTurn = 0）の次は（0 + 1）% 3 = 1 → プレイヤー2（prevTurn = 1）
       let nextTurn = (prevTurn + 1) % playerCount;
       while (playerCards[nextTurn].length === 0) {
         nextTurn = (nextTurn + 1) % playerCount;
@@ -238,8 +354,10 @@ const TimeLineGame = () => {
         />
       </div>
 
-      {/* Board と PlayerHand を中央に配置 */}
+      {/* ボードを中央に配置 */}
       <DndProvider backend={HTML5Backend}>
+        {/* プレイヤー手札を人数に応じて配置 */}
+        {getPlayerHandLayout()}
         <div
           css={css`
             display: flex;
@@ -247,6 +365,7 @@ const TimeLineGame = () => {
             align-items: center;
             width: 80%;
             flex-grow: 1;
+            margin-bottom: 20px;
           `}
         >
           <Board
@@ -261,7 +380,6 @@ const TimeLineGame = () => {
             setCanCheckResult={setCanCheckResult}
             setCanReturnCard={setCanReturnCard}
           />
-          <PlayerHand playerCards={playerCards} currentTurn={currentTurn} />
         </div>
       </DndProvider>
 

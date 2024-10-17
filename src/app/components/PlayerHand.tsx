@@ -12,45 +12,38 @@ import { PlayerHandProps } from "@/app/types/PlayerHand";
 export const PlayerHand = (props: PlayerHandProps) => {
   return (
     <>
-      {props.playerCards.length > 0 && (
+      {props.playerCards?.length > 0 && (
         <div
           css={css`
             display: flex;
-            justify-content: center;
-            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            border-radius: 12px;
             width: 100%;
-            font-size: 10px;
+            max-width: 900px;
+            min-height: 150px;
+            margin-bottom: 2px;
+            opacity: ${props.playerIndex === props.currentTurn ? 1 : 0.5};
+            border: 3px solid #4169e1;
+            padding: 10px;
+            box-sizing: border-box;
           `}
         >
-          {props.playerCards.map((playerHand, playerIndex) => (
-            <div key={`player-${playerIndex}`}>
-              <h3>プレイヤー {playerIndex + 1}</h3>
-              <div
-                css={css`
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  opacity: ${playerIndex === props.currentTurn ? 1 : 0.5};
-                `}
-              >
-                {playerHand.map((card, cardIndex) => (
-                  <div
-                    key={`player-${playerIndex}-card-${cardIndex}-${card.id}`}
-                    css={css`
-                      margin-bottom: 10px;
-                    `}
-                  >
-                    <Card
-                      index={card.id}
-                      playerIndex={playerIndex}
-                      card={card}
-                      isTableCard={false}
-                      showYear={false}
-                      isDraggable={playerIndex === props.currentTurn}
-                    />
-                  </div>
-                ))}
-              </div>
+          {props.playerCards.map((card, cardIndex) => (
+            <div
+              key={`player-card-${cardIndex}-${card.id}`}
+              css={css`
+                margin-right: 5px;
+              `}
+            >
+              <Card
+                index={card.id}
+                playerIndex={props.playerIndex}
+                card={card}
+                isTableCard={false}
+                showYear={false}
+                isDraggable={props.playerIndex === props.currentTurn}
+              />
             </div>
           ))}
         </div>
