@@ -33,19 +33,22 @@ export const Card = (props: DraggableCardProps) => {
     <div
       ref={ref}
       css={css`
+        position: relative;
+        z-index: 2;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         font-size: 8px;
-        padding: 7px;
+        padding: 7px 7px 0px 7px;
         margin: 0px 7px;
         width: 100px;
         height: 150px;
         background-color: #f5deb3;
         text-align: center;
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease, z-index 0.3s ease; /* z-indexの変化をスムーズに */
         opacity: ${isDragging ? 0.5 : 1};
         &:hover {
-          transform: scale(1.05);
+          transform: scale(1.05); /* ホバー時の拡大 */
+          z-index: 3; /* 拡大時はさらに前面に表示 */
         }
       `}
     >

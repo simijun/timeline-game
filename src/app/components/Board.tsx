@@ -119,23 +119,20 @@ export const Board = (props: BoardProps) => {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: 80vw; /* 幅を設定 */
-        height: 190px; /* 高さを直径として半円の形状に */
+        width: 80vw;
+        height: 170px;
         background-image: url("/board-image.png");
         background-size: cover; /* 画像をボードに合わせて拡大・縮小 */
-        background-position: center; /* 画像を中央に配置 */
-        border-radius: 125px / 125px; /* 完全な左右の半円 */
+        background-position: center;
+        border-radius: 125px / 125px;
         padding: 20px;
         box-shadow: ${isOver
-          ? "0 0 20px rgba(0, 255, 255, 0.6)" /* ドロップ時のハイライト */
-          : "0 0 15px rgba(0, 0, 0, 0.5)"}; /* 通常時のシャドウ */
-        border: ${isOver
-          ? "10px solid #00bfff"
-          : "8px solid white"}; /* ドロップ時にボーダーを変化 */
+          ? "0 0 20px rgba(0, 255, 255, 0.6)"
+          : "0 0 15px rgba(0, 0, 0, 0.5)"};
+        border: ${isOver ? "10px solid #00bfff" : "8px solid white"};
         transition: all 0.3s ease;
-        overflow: hidden; /* 横スクロールが効くように調整 */
+        overflow: hidden;
         position: relative;
-        margin-bottom: 20px; /* ボードと手札の間に余白を追加 */
       `}
     >
       {/* カードが追加されてもスクロールできる領域を確保するためのラッパー */}
@@ -159,7 +156,7 @@ export const Board = (props: BoardProps) => {
             key={`table-card-${index}-${card.id}`}
             id={`table-card-${card.id}`}
             css={css`
-              margin: 0 3px; /* カード間の余白 */
+              margin: 0 3px;
             `}
           >
             <Card
